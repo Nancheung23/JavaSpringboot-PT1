@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.foodrecipes.webapp.model.User;
-import com.foodrecipes.webapp.model.UserRepository;
+import com.foodrecipes.webapp.repository.UserRepository;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.ArrayList;
-import java.util.Collections;
+// import java.util.Objects;
+// import java.util.ArrayList;
+// import java.util.Collections;
 import java.util.Optional;
 
 /**
