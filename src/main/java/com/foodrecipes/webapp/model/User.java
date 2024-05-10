@@ -1,50 +1,49 @@
 package com.foodrecipes.webapp.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+// Importing JPA annotations and other necessary Java utilities.
+import javax.persistence.*;
 
 /**
  * Represents a user entity in the application.
- * The @Entity annotation marks this class as a JPA entity.
+ * The @Entity annotation marks this class as a JPA entity, meaning it will be mapped to a table in the database.
  */
 @Entity
-@Table(name = "users") // Custom table name
+// Specifies the table in the database to which this entity will be mapped.
+@Table(name = "users")
 public class User implements Comparable<Integer> {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // Unique identifier for the user
+    // Attributes of the User class with JPA annotations to define table mapping, constraints, and ID generation strategy.
 
-    @Column(name = "username", nullable = false, length = 50)
-    private String name; // Username, custom column name and constraints
+    @Id  // Marks this field as the primary key of the user table.
+    @GeneratedValue(strategy = GenerationType.IDENTITY)  // Configures the way the ID is generated, using the database identity column.
+    private Long id; // Unique identifier for the user.
 
-    @Column(name = "password", nullable = false)
-    private String password; // User's password
+    @Column(name = "username", nullable = false, length = 50)  // Maps this field to the specified column with constraints.
+    private String name; // Username, must not be null and has a max length of 50 characters.
 
-    @Column(name = "nickname", length = 50)
-    private String nickName; // User's nickname
+    @Column(name = "password", nullable = false)  // Marks this field as a column and it must not be null.
+    private String password; // User's password.
 
-    @Column(name = "avatar_url")
-    private String avatarUrl; // URL of the user's avatar image
+    @Column(name = "nickname", length = 50)  // Specifies this field has a max length of 50 characters.
+    private String nickName; // User's nickname.
 
-    @Column(name = "email", unique = true)
-    private String email; // User's email address, must be unique
+    @Column(name = "avatar_url")  // Optional field without constraints.
+    private String avatarUrl; // URL of the user's avatar image.
 
-    @Column(name = "age")
-    private int age; // User's age
+    @Column(name = "email", unique = true)  // Marks the email as unique within the database.
+    private String email; // User's email address, must be unique.
+
+    @Column(name = "age")  // No specific constraints, defaults apply.
+    private int age; // User's age.
 
     /**
-     * Required no-argument constructor for JPA.
+     * No-argument constructor required by JPA for creating instances.
      */
     public User() {
     }
 
     /**
-     * Constructs a new User with all fields initialized.
+     * Full constructor for creating a new User with all field values.
      */
     public User(final Long id, final String name, final String password, final String nickName,
                 final String avatarUrl, final String email, final int age) {
@@ -57,7 +56,21 @@ public class User implements Comparable<Integer> {
         this.age = age;
     }
 
-    // Getter and setter methods for all attributes
+    // Standard getter and setter methods for accessing and updating the field values.
+    // These methods are crucial for managing the state of User objects and facilitating database interactions through ORM.
+
+    // HashCode, Equals, and ToString methods overridden to provide appropriate behavior for user entity instances.
+
+    /**
+     * Compares this user's age to another age.
+     * Useful for sorting collections of users based on age.
+     * @param o another user's age to compare to.
+     * @return standard compareTo results: negative if this age is less, zero if equal, positive if greater.
+     */
+    @Override
+    public int compareTo(Integer o) {
+        return Integer.compare(age, o);
+    }
 
     public Long getId() {
         return id;
@@ -145,10 +158,5 @@ public class User implements Comparable<Integer> {
     public String toString() {
         return String.format("User [id=%s, name=%s, password=%s, nickName=%s, avatarUrl=%s, email=%s, age=%d]",
                             id, name, password, nickName, avatarUrl, email, age);
-    }
-
-    @Override
-    public int compareTo(Integer o) {
-        return Integer.compare(age, o);
     }
 }
