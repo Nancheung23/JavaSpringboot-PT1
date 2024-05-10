@@ -26,12 +26,12 @@ public class DataLoader {
     @PostConstruct
     public void loadData() {
         List<UserDTO> dtos = List.of(
-            new UserDTO(),
-            new UserDTO()
+            new UserDTO("Yannan Zhang", "yannan.zhang@tuni.fi", ""),
+            new UserDTO("Nan", "nan@tuni.fi", "")
         );
 
         List<User> users = dtos.stream()
-            .map(dto -> conversionService.convertToEntity(dto))
+            .map(conversionService::convertToEntity)
             .collect(Collectors.toList());
 
         userRepository.saveAll(users);

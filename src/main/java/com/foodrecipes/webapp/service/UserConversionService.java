@@ -9,7 +9,6 @@ public class UserConversionService {
 
     public User convertToEntity(UserDTO dto) {
         User user = new User();
-        user.setId(dto.getId());
         user.setName(dto.getName());
         user.setEmail(dto.getEmail());
         user.setAvatarUrl(dto.getAvatarUrl());
@@ -17,6 +16,6 @@ public class UserConversionService {
     }
 
     public UserDTO convertToDTO(User user) {
-        return new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getAvatarUrl());
+        return new UserDTO(user.getName(), user.getEmail(), user.getAvatarUrl());
     }
 }

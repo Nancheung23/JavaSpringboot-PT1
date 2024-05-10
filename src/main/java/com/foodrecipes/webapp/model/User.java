@@ -1,7 +1,7 @@
 package com.foodrecipes.webapp.model;
 
 // Importing JPA annotations and other necessary Java utilities.
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * Represents a user entity in the application.

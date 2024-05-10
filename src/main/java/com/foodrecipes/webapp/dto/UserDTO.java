@@ -1,7 +1,6 @@
 package com.foodrecipes.webapp.dto;
 
 public class UserDTO {
-    private Long id;
     private String name;
     private String email;
     private String avatarUrl;
@@ -9,19 +8,10 @@ public class UserDTO {
     // constructor，getter和setter
     public UserDTO() {}
 
-    public UserDTO(Long id, String name, String email, String avatarUrl) {
-        this.id = id;
+    public UserDTO(String name, String email, String avatarUrl) {
         this.name = name;
         this.email = email;
         this.avatarUrl = avatarUrl;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {
