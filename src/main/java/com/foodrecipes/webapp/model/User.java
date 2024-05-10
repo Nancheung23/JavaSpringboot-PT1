@@ -76,7 +76,7 @@ public class User implements Comparable<Integer> {
         return id;
     }
 
-    public void setId(final Long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -84,7 +84,7 @@ public class User implements Comparable<Integer> {
         return name;
     }
 
-    public void setName(final String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -92,7 +92,7 @@ public class User implements Comparable<Integer> {
         return password;
     }
 
-    public void setPassword(final String password) {
+    public void setPassword(String password) {
         this.password = password;
     }
 
@@ -100,7 +100,7 @@ public class User implements Comparable<Integer> {
         return nickName;
     }
 
-    public void setNickName(final String nickName) {
+    public void setNickName(String nickName) {
         this.nickName = nickName;
     }
 
@@ -108,7 +108,7 @@ public class User implements Comparable<Integer> {
         return avatarUrl;
     }
 
-    public void setAvatarUrl(final String avatarUrl) {
+    public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
     }
 
@@ -116,7 +116,7 @@ public class User implements Comparable<Integer> {
         return email;
     }
 
-    public void setEmail(final String email) {
+    public void setEmail(String email) {
         this.email = email;
     }
 
@@ -124,7 +124,7 @@ public class User implements Comparable<Integer> {
         return age;
     }
 
-    public void setAge(final int age) {
+    public void setAge(int age) {
         this.age = age;
     }
 
