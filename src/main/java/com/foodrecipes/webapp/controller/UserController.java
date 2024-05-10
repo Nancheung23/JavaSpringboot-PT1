@@ -4,6 +4,7 @@ package com.foodrecipes.webapp.controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,8 +13,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.foodrecipes.webapp.dto.UserDTO;
 import com.foodrecipes.webapp.model.User;
 import com.foodrecipes.webapp.repository.UserRepository;
+import com.foodrecipes.webapp.service.UserConversionService;
 
 import java.util.List;
 // import java.util.Objects;
@@ -35,22 +38,16 @@ public class UserController {
     // List to hold User objects. Initialized as an ArrayList.
     // private List<User> users = new ArrayList<>();
     private final UserRepository userRepository;
+    private final UserConversionService conversionService;
 
     /**
      * Constructor for UserController.
      * Adds three new User instances to the users list.
      */
-    public UserController(UserRepository userRepository) {
-        // Collections.addAll(users,
-        // new User(),
-        // new User(),
-        // new User());
-
+    @Autowired
+    public UserController(UserRepository userRepository, UserConversionService conversionService) {
         this.userRepository = userRepository;
-        this.userRepository.saveAll(List.of(
-                new User(),
-                new User(),
-                new User()));
+        this.conversionService = conversionService;
     }
 
     /**
@@ -74,9 +71,9 @@ public class UserController {
     @GetMapping("/users/{id}")
     Optional<User> getUserById(@PathVariable Long id) {
         // for (User user : users) {
-        //     if (Objects.equals(user.getId(), id)) {
-        //         return Optional.of(user);
-        //     }
+        // if (Objects.equals(user.getId(), id)) {
+        // return Optional.of(user);
+        // }
         // }
         // return Optional.empty();
         return userRepository.findById(id);
@@ -97,6 +94,23 @@ public class UserController {
     }
 
     /**
+     * Post Data with DTO
+     * @param userDto
+     * @return status of DTO REQUEST.POST
+     */
+    @PostMapping
+    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDto) {
+        // DTO -> User
+        User user = conversionService.convertToEntity(userDto);
+        // save User entity
+        user = userRepository.save(user);
+        // convert back UserDTO
+        UserDTO responseDto = conversionService.convertToDTO(user);
+        // return Dto in 200 status
+        return ResponseEntity.ok(responseDto);
+    }
+
+    /**
      * Handler method for PUT requests to "/users/{id}".
      * Updates an existing user or adds a new one if the ID does not exist.
      * 
@@ -109,13 +123,25 @@ public class UserController {
     ResponseEntity<User> putUser(@PathVariable Long id, @RequestBody User user) {
         // int userIndex = -1;
         // for (User u : users) {
-        //     if (Objects.equals(u.getId(), id)) {
-        //         userIndex = users.indexOf(u);
-        //         users.set(userIndex, user);
-        //     }
+        // if (Objects.equals(u.getId(), id)) {
+        // userIndex = users.indexOf(u);
+        // users.set(userIndex, user);
+        // }
         // }
         // return (userIndex == -1) ? postUser(user) : user;
-        return (!userRepository.existsById(id)) ? new ResponseEntity<>(userRepository.save(user), HttpStatus.CREATED) : new ResponseEntity<>(userRepository.save(user), HttpStatus.OK);
+        return (!userRepository.existsById(id)) ? new ResponseEntity<>(userRepository.save(user), HttpStatus.CREATED)
+                : new ResponseEntity<>(userRepository.save(user), HttpStatus.OK);
+    }
+
+    @PutMapping("/users/{id}")
+    public ResponseEntity<UserDTO> putUser(@PathVariable Long id, @RequestBody UserDTO userDto) {
+        User user = conversionService.convertToEntity(userDto);
+        if (!userRepository.existsById(id)) {
+            return createUser(userDto);
+        } else {
+            userRepository.save(user);
+            return ResponseEntity.ok(userDto);
+        }
     }
 
     /**
