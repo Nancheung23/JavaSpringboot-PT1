@@ -3,6 +3,8 @@ package com.foodrecipes.webapp.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import jakarta.annotation.PostConstruct;
+
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,14 +26,14 @@ public class DataLoader {
     }
 
     @PostConstruct
-    public void loadData() {
+    public void loadData() throws NoSuchAlgorithmException {
         List<UserDTO> dtos = List.of(
-            new UserDTO("Yannan Zhang", "yannan.zhang@tuni.fi", ""),
-            new UserDTO("Nan", "nan@tuni.fi", "")
+            new UserDTO((long) 99999999, "Yannan zhang", "nan", "admin", "www.google.com", "yannan.zhang@tuni.fi", 27)
         );
 
         List<User> users = dtos.stream()
             .map(conversionService::convertToEntity)
+            .filter(user -> !userRepository.findByEmail(user.getEmail()).isPresent()) // Check if email already exists
             .collect(Collectors.toList());
 
         userRepository.saveAll(users);
