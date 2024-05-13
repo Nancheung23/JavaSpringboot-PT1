@@ -1,39 +1,44 @@
 package com.foodrecipes.webapp.model;
 
 // Importing JPA annotations and other necessary Java utilities.
-import javax.persistence.*;
+// No javax in current version
+import jakarta.persistence.*;
 
 /**
  * Represents a user entity in the application.
- * The @Entity annotation marks this class as a JPA entity, meaning it will be mapped to a table in the database.
+ * The @Entity annotation marks this class as a JPA entity, meaning it will be
+ * mapped to a table in the database.
  */
 @Entity
 // Specifies the table in the database to which this entity will be mapped.
 @Table(name = "users")
 public class User implements Comparable<Integer> {
 
-    // Attributes of the User class with JPA annotations to define table mapping, constraints, and ID generation strategy.
+    // Attributes of the User class with JPA annotations to define table mapping,
+    // constraints, and ID generation strategy.
 
-    @Id  // Marks this field as the primary key of the user table.
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  // Configures the way the ID is generated, using the database identity column.
+    @Id // Marks this field as the primary key of the user table.
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Configures the way the ID is generated, using the database
+                                                        // identity column.
     private Long id; // Unique identifier for the user.
 
-    @Column(name = "username", nullable = false, length = 50)  // Maps this field to the specified column with constraints.
+    @Column(name = "username", nullable = false, length = 50) // Maps this field to the specified column with
+                                                              // constraints.
     private String name; // Username, must not be null and has a max length of 50 characters.
 
-    @Column(name = "password", nullable = false)  // Marks this field as a column and it must not be null.
+    @Column(name = "password", nullable = false) // Marks this field as a column and it must not be null.
     private String password; // User's password.
 
-    @Column(name = "nickname", length = 50)  // Specifies this field has a max length of 50 characters.
+    @Column(name = "nickname", length = 50) // Specifies this field has a max length of 50 characters.
     private String nickName; // User's nickname.
 
-    @Column(name = "avatar_url")  // Optional field without constraints.
+    @Column(name = "avatar_url") // Optional field without constraints.
     private String avatarUrl; // URL of the user's avatar image.
 
-    @Column(name = "email", unique = true)  // Marks the email as unique within the database.
+    @Column(name = "email", unique = true) // Marks the email as unique within the database.
     private String email; // User's email address, must be unique.
 
-    @Column(name = "age")  // No specific constraints, defaults apply.
+    @Column(name = "age") // No specific constraints, defaults apply.
     private int age; // User's age.
 
     /**
@@ -46,7 +51,7 @@ public class User implements Comparable<Integer> {
      * Full constructor for creating a new User with all field values.
      */
     public User(final Long id, final String name, final String password, final String nickName,
-                final String avatarUrl, final String email, final int age) {
+            final String avatarUrl, final String email, final int age) {
         this.id = id;
         this.name = name;
         this.password = password;
@@ -56,16 +61,21 @@ public class User implements Comparable<Integer> {
         this.age = age;
     }
 
-    // Standard getter and setter methods for accessing and updating the field values.
-    // These methods are crucial for managing the state of User objects and facilitating database interactions through ORM.
+    // Standard getter and setter methods for accessing and updating the field
+    // values.
+    // These methods are crucial for managing the state of User objects and
+    // facilitating database interactions through ORM.
 
-    // HashCode, Equals, and ToString methods overridden to provide appropriate behavior for user entity instances.
+    // HashCode, Equals, and ToString methods overridden to provide appropriate
+    // behavior for user entity instances.
 
     /**
      * Compares this user's age to another age.
      * Useful for sorting collections of users based on age.
+     * 
      * @param o another user's age to compare to.
-     * @return standard compareTo results: negative if this age is less, zero if equal, positive if greater.
+     * @return standard compareTo results: negative if this age is less, zero if
+     *         equal, positive if greater.
      */
     @Override
     public int compareTo(Integer o) {
@@ -76,7 +86,7 @@ public class User implements Comparable<Integer> {
         return id;
     }
 
-    public void setId(final Long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -84,7 +94,7 @@ public class User implements Comparable<Integer> {
         return name;
     }
 
-    public void setName(final String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -92,7 +102,7 @@ public class User implements Comparable<Integer> {
         return password;
     }
 
-    public void setPassword(final String password) {
+    public void setPassword(String password) {
         this.password = password;
     }
 
@@ -100,7 +110,7 @@ public class User implements Comparable<Integer> {
         return nickName;
     }
 
-    public void setNickName(final String nickName) {
+    public void setNickName(String nickName) {
         this.nickName = nickName;
     }
 
@@ -108,7 +118,7 @@ public class User implements Comparable<Integer> {
         return avatarUrl;
     }
 
-    public void setAvatarUrl(final String avatarUrl) {
+    public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
     }
 
@@ -116,7 +126,7 @@ public class User implements Comparable<Integer> {
         return email;
     }
 
-    public void setEmail(final String email) {
+    public void setEmail(String email) {
         this.email = email;
     }
 
@@ -124,11 +134,12 @@ public class User implements Comparable<Integer> {
         return age;
     }
 
-    public void setAge(final int age) {
+    public void setAge(int age) {
         this.age = age;
     }
 
-    // Overriding the hashCode, equals, and toString methods for proper value comparison and output formatting
+    // Overriding the hashCode, equals, and toString methods for proper value
+    // comparison and output formatting
 
     @Override
     public int hashCode() {
@@ -146,17 +157,19 @@ public class User implements Comparable<Integer> {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
         User other = (User) obj;
         return id.equals(other.id) && name.equals(other.name) &&
-            password.equals(other.password) && nickName.equals(other.nickName) &&
-            avatarUrl.equals(other.avatarUrl) && email.equals(other.email) && age == other.age;
+                password.equals(other.password) && nickName.equals(other.nickName) &&
+                avatarUrl.equals(other.avatarUrl) && email.equals(other.email) && age == other.age;
     }
 
     @Override
     public String toString() {
         return String.format("User [id=%s, name=%s, password=%s, nickName=%s, avatarUrl=%s, email=%s, age=%d]",
-                            id, name, password, nickName, avatarUrl, email, age);
+                id, name, password, nickName, avatarUrl, email, age);
     }
 }
