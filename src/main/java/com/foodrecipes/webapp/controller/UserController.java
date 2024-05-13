@@ -4,25 +4,17 @@ package com.foodrecipes.webapp.controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import com.foodrecipes.webapp.dto.UserDTO;
 import com.foodrecipes.webapp.model.User;
 import com.foodrecipes.webapp.repository.UserRepository;
 import com.foodrecipes.webapp.service.UserConversionService;
-
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
-// import java.util.Objects;
-// import java.util.ArrayList;
-// import java.util.Collections;
 import java.util.Optional;
 
 /**
@@ -37,15 +29,16 @@ import java.util.Optional;
 @RequestMapping("/users")
 public class UserController {
     // List to hold User objects. Initialized as an ArrayList.
-    // private List<User> users = new ArrayList<>();
     private final UserRepository userRepository;
     private final UserConversionService conversionService;
 
     /**
      * Constructor for UserController.
-     * Adds three new User instances to the users list.
+     * 
+     * @param userRepository
+     * @param conversionService
      */
-    @Autowired
+    // @Autowired
     public UserController(UserRepository userRepository, UserConversionService conversionService) {
         this.userRepository = userRepository;
         this.conversionService = conversionService;
@@ -58,7 +51,6 @@ public class UserController {
      */
     @GetMapping("/")
     public Iterable<User> getUsers() {
-        // return users;
         return userRepository.findAll();
     }
 
@@ -71,34 +63,15 @@ public class UserController {
      */
     @GetMapping("/{id}")
     Optional<User> getUserById(@PathVariable Long id) {
-        // for (User user : users) {
-        // if (Objects.equals(user.getId(), id)) {
-        // return Optional.of(user);
-        // }
-        // }
-        // return Optional.empty();
         return userRepository.findById(id);
     }
 
-    // /**
-    //  * Handler method for POST requests to "/users".
-    //  * Adds a new User to the users list.
-    //  * 
-    //  * @param user the User object to add, parsed from the request body.
-    //  * @return the added User object.
-    //  */
-    // @PostMapping("/")
-    // User postUser(@RequestBody User user) {
-    //     // users.add(user);
-    //     // return user;
-    //     return userRepository.save(user);
-    // }
-
     /**
      * Post Data with DTO
+     * 
      * @param userDto
      * @return status of DTO REQUEST.POST
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      */
     @PostMapping("/")
     public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDto) throws NoSuchAlgorithmException {
@@ -112,37 +85,25 @@ public class UserController {
         return ResponseEntity.ok(responseDto);
     }
 
-    // /**
-    //  * Handler method for PUT requests to "/users/{id}".
-    //  * Updates an existing user or adds a new one if the ID does not exist.
-    //  * 
-    //  * @param id   the ID of the user to update.
-    //  * @param user the new User object to replace the existing one, parsed from the
-    //  *             request body.
-    //  * @return the updated or newly added User object.
-    //  */
-    // @PutMapping("/{id}")
-    // ResponseEntity<User> putUser(@PathVariable Long id, @RequestBody User user) {
-    //     // int userIndex = -1;
-    //     // for (User u : users) {
-    //     // if (Objects.equals(u.getId(), id)) {
-    //     // userIndex = users.indexOf(u);
-    //     // users.set(userIndex, user);
-    //     // }
-    //     // }
-    //     // return (userIndex == -1) ? postUser(user) : user;
-    //     return (!userRepository.existsById(id)) ? new ResponseEntity<>(userRepository.save(user), HttpStatus.CREATED)
-    //             : new ResponseEntity<>(userRepository.save(user), HttpStatus.OK);
-    // }
-
+    /**
+     * Put DTO into Table, create when doesn't exist in database
+     * when successful, send HTTPStaus: OK
+     * 
+     * @param id
+     * @param userDto
+     * @return
+     * @throws NoSuchAlgorithmException
+     */
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> putUser(@PathVariable Long id, @RequestBody UserDTO userDto) throws NoSuchAlgorithmException {
+    public ResponseEntity<UserDTO> putUser(@PathVariable Long id, @RequestBody UserDTO userDto)
+            throws NoSuchAlgorithmException {
         User user = conversionService.convertToEntity(userDto);
         if (!userRepository.existsById(id)) {
             return createUser(userDto);
         } else {
+            user.setId(id);
             userRepository.save(user);
-            return ResponseEntity.ok(userDto);
+            return ResponseEntity.ok(conversionService.convertToDTO(user));
         }
     }
 
@@ -153,8 +114,9 @@ public class UserController {
      * @param id the ID of the user to delete.
      */
     @DeleteMapping("/{id}")
-    void deleteUser(@PathVariable Long id) {
-        // users.removeIf(u -> Objects.equals(u.getId(), id));
+    ResponseEntity<UserDTO> deleteUser(@PathVariable Long id) throws NoSuchAlgorithmException{
+        User user = userRepository.findById(id).orElse(null);
         userRepository.deleteById(id);
+        return ResponseEntity.ok(conversionService.convertToDTO(user));
     }
 }

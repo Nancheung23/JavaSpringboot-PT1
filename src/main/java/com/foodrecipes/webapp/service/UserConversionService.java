@@ -10,9 +10,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserConversionService {
 
+    /**
+     * Convert DTO object to User object,
+     * invoke getter and setter to verify data correctness.
+     * 
+     * @param dto
+     * @return user
+     */
     public User convertToEntity(UserDTO dto) {
         User user = new User();
-        user.setId(dto.getId());
         user.setName(dto.getName());
         user.setNickName(dto.getNickName());
         user.setPassword(dto.getPassword());
@@ -22,7 +28,16 @@ public class UserConversionService {
         return user;
     }
 
-    public UserDTO convertToDTO(User user) throws NoSuchAlgorithmException{
-        return new UserDTO(user.getId(), user.getName(), user.getNickName(), user.getPassword(), user.getAvatarUrl(), user.getEmail(), user.getAge());
+    /**
+     * Convert user object to dto object,
+     * no need for verification because user is a response entity.
+     * 
+     * @param user
+     * @return new DTO
+     * @throws NoSuchAlgorithmException
+     */
+    public UserDTO convertToDTO(User user) throws NoSuchAlgorithmException {
+        return new UserDTO(user.getName(), user.getNickName(), user.getPassword(), user.getAvatarUrl(),
+                user.getEmail(), user.getAge());
     }
 }
