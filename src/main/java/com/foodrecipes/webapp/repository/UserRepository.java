@@ -3,7 +3,6 @@ package com.foodrecipes.webapp.repository;
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
 import com.foodrecipes.webapp.model.User;
-import java.util.List;
 
 /**
  * User Repository interface extends CRUD,
