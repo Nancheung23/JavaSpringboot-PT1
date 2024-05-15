@@ -1,5 +1,7 @@
 package com.foodrecipes.webapp.model;
 
+import java.util.Set;
+
 // Importing JPA annotations and other necessary Java utilities.
 import jakarta.persistence.*;
 
@@ -21,6 +23,12 @@ public class Recipe implements Comparable<String> {
     @Column(name = "content", nullable = false)
     private String content;
 
+    @Column(name = "rating", nullable = true)
+    private double rating;
+
+    @Column(name = "views", nullable = false)
+    private int views;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -34,10 +42,12 @@ public class Recipe implements Comparable<String> {
     /**
      * Full constructor for creating a new Recipe with all field values.
      */
-    public Recipe(Long id, String title, String content, User user) {
+    public Recipe(Long id, String title, String content, double rating, int views, User user) {
         this.id = id;
         this.title = title;
         this.content = content;
+        this.rating = rating;
+        this.views = views;
         this.user = user;
     }
 
@@ -71,6 +81,22 @@ public class Recipe implements Comparable<String> {
     public void setContent(String content) {
         this.content = content;
     }
+    
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
+    }
+
+    public int getViews() {
+        return views;
+    }
+
+    public void setViews(int views) {
+        this.views = views;
+    }
 
     public User getUser() {
         return user;
@@ -78,6 +104,10 @@ public class Recipe implements Comparable<String> {
 
     public void setUser(User user) {
         this.user = user;
+        Set<Recipe> recipes = this.user.getRecipes();
+        if (!recipes.contains(this)) {
+            recipes.add(this);
+        }
     }
 
     @Override

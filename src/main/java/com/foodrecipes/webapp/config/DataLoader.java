@@ -2,12 +2,19 @@ package com.foodrecipes.webapp.config;
 
 import org.springframework.stereotype.Component;
 import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
+
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.foodrecipes.webapp.model.Recipe;
 import com.foodrecipes.webapp.model.User;
 import com.foodrecipes.webapp.dto.UserDTO;
+import com.foodrecipes.webapp.dto.RecipeDTO;
+import com.foodrecipes.webapp.repository.RecipeRepository;
 import com.foodrecipes.webapp.repository.UserRepository;
+import com.foodrecipes.webapp.service.RecipeConversionService;
 import com.foodrecipes.webapp.service.UserConversionService;
 
 @Component
@@ -18,6 +25,8 @@ public class DataLoader {
      */
     private final UserRepository userRepository;
     private final UserConversionService conversionService;
+    private final RecipeRepository recipeRepository;
+    private final RecipeConversionService recipeConversionService;
 
     /**
      * Constructor
@@ -26,9 +35,11 @@ public class DataLoader {
      * @param conversionService
      */
     // @Autowired
-    public DataLoader(UserRepository userRepository, UserConversionService conversionService) {
+    public DataLoader(UserRepository userRepository, UserConversionService conversionService, RecipeRepository recipeRepository, RecipeConversionService recipeConversionService) {
         this.userRepository = userRepository;
         this.conversionService = conversionService;
+        this.recipeRepository = recipeRepository;
+        this.recipeConversionService = recipeConversionService;
     }
 
     /**
@@ -38,6 +49,7 @@ public class DataLoader {
      * @throws NoSuchAlgorithmException
      */
     @PostConstruct
+    @Transactional
     public void loadData() throws NoSuchAlgorithmException {
         /**
          * create initialized list of UserDTO instances
@@ -46,6 +58,13 @@ public class DataLoader {
                 new UserDTO( "Yannan zhang", "nan", "admin", "http://www.google.com", "yannan.zhang@tuni.fi", 27),
                 new UserDTO("Test User", "test", "test", "https://chatgpt.com", "testUser@test.fi", 99),
                 new UserDTO("Test User 2", "Test", "test", "http://www.youtube.com", "test@test.fi", 1)
+        );
+
+        List<RecipeDTO> dtosR = List.of(
+            new RecipeDTO("Test Recipe1", "Test Recipe1", 0, 0, (long)1),
+            new RecipeDTO("Test Recipe2", "Test Recipe2", 0, 0, (long)2),
+            new RecipeDTO("Test Recipe3", "Test Recipe3", 0, 0, (long)3),
+            new RecipeDTO("Test Recipe4", "Test Recipe4", 0, 0, (long)1)
         );
 
         /**
@@ -61,7 +80,13 @@ public class DataLoader {
                                                                                         // exists
                 .collect(Collectors.toList());
 
-        // save to database
+        
+        List<Recipe> recipes = dtosR.stream()
+                .map(recipeConversionService::convertToEntity)
+                .collect(Collectors.toList());
+                // save to database
         userRepository.saveAll(users);
+        recipeRepository.saveAll(recipes);
+        
     }
 }

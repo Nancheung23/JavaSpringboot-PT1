@@ -10,22 +10,28 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import com.foodrecipes.webapp.dto.RecipeDTO;
+import com.foodrecipes.webapp.dto.UserDTO;
 import com.foodrecipes.webapp.model.Recipe;
 import com.foodrecipes.webapp.repository.RecipeRepository;
 import com.foodrecipes.webapp.service.RecipeConversionService;
+import com.foodrecipes.webapp.service.UserConversionService;
 
 @RestController
 @RequestMapping("/recipes")
 public class RecipeController {
     private final RecipeRepository recipeRepository;
     private final RecipeConversionService recipeConversionService;
+    private final UserConversionService userConversionService;
 
     @Autowired
-    public RecipeController(RecipeRepository recipeRepository, RecipeConversionService recipeConversionService) {
+    public RecipeController(RecipeRepository recipeRepository, RecipeConversionService recipeConversionService, UserConversionService userConversionService) {
         this.recipeRepository = recipeRepository;
         this.recipeConversionService = recipeConversionService;
+        this.userConversionService = userConversionService;
     }
 
     @GetMapping("/")
@@ -53,14 +59,27 @@ public class RecipeController {
         } else {
             recipe.setId(id);
             recipeRepository.save(recipe);
-            return ResponseEntity.ok(recipeConversionService.convertTDto(recipe));
+            return ResponseEntity.ok(recipeConversionService.convertToDto(recipe));
         }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<RecipeDTO> deleteRecipe(@PathVariable Long id) {
         Recipe recipe = recipeRepository.findById(id).orElse(null);
-        recipeRepository.delete(recipe);
-        return ResponseEntity.ok(recipeConversionService.convertTDto(recipe));
+        if (recipe != null) {
+            recipeRepository.delete(recipe);
+            return ResponseEntity.ok(recipeConversionService.convertToDto(recipe));
+        }
+        return ResponseEntity.ofNullable(null);
+        
+        
+    }
+
+    @PostMapping("/{id}/view")
+    public ResponseEntity<RecipeDTO> viewRecipe(@PathVariable Long id, @RequestBody UserDTO user) {
+        recipeConversionService.incrementRecipeViews(id, userConversionService.convertToEntity(user).getId());
+        return ResponseEntity.ok(recipeConversionService.
+        convertToDto(userConversionService.convertToEntity(user).getRecipes().stream()
+        .filter(e -> e.getId() == id).findFirst().orElseThrow(NoSuchElementException::new)));
     }
 }

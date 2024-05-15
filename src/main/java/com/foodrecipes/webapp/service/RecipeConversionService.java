@@ -1,9 +1,16 @@
 package com.foodrecipes.webapp.service;
 
+import java.util.NoSuchElementException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.foodrecipes.webapp.model.Recipe;
+import com.foodrecipes.webapp.model.User;
+import com.foodrecipes.webapp.repository.RecipeRepository;
 import com.foodrecipes.webapp.repository.UserRepository;
+
+import jakarta.transaction.Transactional;
+
 import com.foodrecipes.webapp.dto.RecipeDTO;
 
 @Service
@@ -11,6 +18,7 @@ public class RecipeConversionService {
 
     @Autowired
     private UserRepository userRepository;
+    private RecipeRepository recipeRepository;
 
     /**
      * Convert DTO object to Recipe object,
@@ -35,7 +43,22 @@ public class RecipeConversionService {
      * @param entity
      * @return
      */
-    public RecipeDTO convertTDto(Recipe entity) {
-        return new RecipeDTO(entity.getTitle(), entity.getContent(), entity.getUser().getId());
+    public RecipeDTO convertToDto(Recipe entity) {
+        return new RecipeDTO(entity.getTitle(), entity.getContent(), entity.getRating(), entity.getViews(), entity.getUser().getId());
+    }
+    
+    @Transactional
+    /**
+     * In this service method, with proper userId and recipeId (author cannot increase views), add one view in views
+     * @param recipeId
+     * @param userId
+     */
+    public void incrementRecipeViews(Long recipeId, Long userId) {
+        Recipe recipe = recipeRepository.findById(recipeId).orElseThrow(NoSuchElementException::new);
+        User user = userRepository.findById(userId).orElseThrow(NoSuchElementException::new);
+        if ((recipe != null) && (user != null) && (recipe.getUser().getId() != user.getId())) {
+                recipe.setViews(recipe.getViews() + 1);
+                recipeRepository.save(recipe);
+            }
     }
 }

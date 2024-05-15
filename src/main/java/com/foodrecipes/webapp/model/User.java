@@ -1,5 +1,10 @@
 package com.foodrecipes.webapp.model;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 // Importing JPA annotations and other necessary Java utilities.
 // No javax in current version
 import jakarta.persistence.*;
@@ -40,6 +45,9 @@ public class User implements Comparable<Integer> {
 
     @Column(name = "age") // No specific constraints, defaults apply.
     private int age; // User's age.
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    private Set<Recipe> recipes = new HashSet<>();
 
     /**
      * No-argument constructor required by JPA for creating instances.
@@ -138,6 +146,24 @@ public class User implements Comparable<Integer> {
         this.age = age;
     }
 
+    public Set<Recipe> getRecipes() {
+        return recipes;
+    }
+
+    public void setRecipes(Set<Recipe> recipes) {
+        this.recipes = recipes;
+    }
+
+    /**
+     * Set one recipe in a user
+     * @param recipe
+     */
+    public void setRecipe(Recipe recipe) {
+        if (recipes == null) {
+            this.recipes = new HashSet<>();
+        }
+        recipes.add(recipe);
+    }
     // Overriding the hashCode, equals, and toString methods for proper value
     // comparison and output formatting
 
