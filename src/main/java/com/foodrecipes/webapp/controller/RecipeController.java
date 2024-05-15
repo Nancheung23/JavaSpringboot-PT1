@@ -13,8 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
+
 import com.foodrecipes.webapp.dto.RecipeDTO;
 import com.foodrecipes.webapp.dto.UserDTO;
+import com.foodrecipes.webapp.model.Comment;
 import com.foodrecipes.webapp.model.Recipe;
 import com.foodrecipes.webapp.repository.RecipeRepository;
 import com.foodrecipes.webapp.service.RecipeConversionService;
@@ -28,7 +31,8 @@ public class RecipeController {
     private final UserConversionService userConversionService;
 
     @Autowired
-    public RecipeController(RecipeRepository recipeRepository, RecipeConversionService recipeConversionService, UserConversionService userConversionService) {
+    public RecipeController(RecipeRepository recipeRepository, RecipeConversionService recipeConversionService,
+            UserConversionService userConversionService) {
         this.recipeRepository = recipeRepository;
         this.recipeConversionService = recipeConversionService;
         this.userConversionService = userConversionService;
@@ -38,10 +42,18 @@ public class RecipeController {
     public Iterable<Recipe> getRecipes() {
         return recipeRepository.findAll();
     }
-    
+
     @GetMapping("/{id}")
     public Optional<Recipe> getRecipeById(@PathVariable Long id) {
         return recipeRepository.findById(id);
+    }
+
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<Set<Comment>> getCommentsOfRecipe(@PathVariable Long id) {
+        return recipeRepository.findById(id)
+                .map(Recipe::getComments)
+                .map(comments -> ResponseEntity.ok().body(comments))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping("/")
@@ -71,15 +83,14 @@ public class RecipeController {
             return ResponseEntity.ok(recipeConversionService.convertToDto(recipe));
         }
         return ResponseEntity.ofNullable(null);
-        
-        
+
     }
 
     @PostMapping("/{id}/view")
     public ResponseEntity<RecipeDTO> viewRecipe(@PathVariable Long id, @RequestBody UserDTO user) {
         recipeConversionService.incrementRecipeViews(id, userConversionService.convertToEntity(user).getId());
-        return ResponseEntity.ok(recipeConversionService.
-        convertToDto(userConversionService.convertToEntity(user).getRecipes().stream()
-        .filter(e -> e.getId() == id).findFirst().orElseThrow(NoSuchElementException::new)));
+        return ResponseEntity.ok(
+                recipeConversionService.convertToDto(userConversionService.convertToEntity(user).getRecipes().stream()
+                        .filter(e -> e.getId() == id).findFirst().orElseThrow(NoSuchElementException::new)));
     }
 }

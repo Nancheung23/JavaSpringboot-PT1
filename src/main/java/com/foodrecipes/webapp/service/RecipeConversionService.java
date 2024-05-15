@@ -18,6 +18,7 @@ public class RecipeConversionService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
     private RecipeRepository recipeRepository;
 
     /**
@@ -44,12 +45,15 @@ public class RecipeConversionService {
      * @return
      */
     public RecipeDTO convertToDto(Recipe entity) {
-        return new RecipeDTO(entity.getTitle(), entity.getContent(), entity.getRating(), entity.getViews(), entity.getUser().getId());
+        return new RecipeDTO(entity.getTitle(), entity.getContent(), entity.getRating(), entity.getViews(),
+                entity.getUser().getId());
     }
-    
+
     @Transactional
     /**
-     * In this service method, with proper userId and recipeId (author cannot increase views), add one view in views
+     * In this service method, with proper userId and recipeId (author cannot
+     * increase views), add one view in views
+     * 
      * @param recipeId
      * @param userId
      */
@@ -57,8 +61,8 @@ public class RecipeConversionService {
         Recipe recipe = recipeRepository.findById(recipeId).orElseThrow(NoSuchElementException::new);
         User user = userRepository.findById(userId).orElseThrow(NoSuchElementException::new);
         if ((recipe != null) && (user != null) && (recipe.getUser().getId() != user.getId())) {
-                recipe.setViews(recipe.getViews() + 1);
-                recipeRepository.save(recipe);
-            }
+            recipe.setViews(recipe.getViews() + 1);
+            recipeRepository.save(recipe);
+        }
     }
 }

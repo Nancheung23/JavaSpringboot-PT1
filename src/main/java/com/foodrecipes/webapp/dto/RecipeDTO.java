@@ -58,8 +58,7 @@ public class RecipeDTO {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
-    
-    
+
     public double getRating() {
         return rating;
     }

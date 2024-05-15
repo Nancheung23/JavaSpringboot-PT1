@@ -11,11 +11,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.foodrecipes.webapp.dto.UserDTO;
+import com.foodrecipes.webapp.model.Recipe;
 import com.foodrecipes.webapp.model.User;
+import com.foodrecipes.webapp.repository.RecipeRepository;
 import com.foodrecipes.webapp.repository.UserRepository;
 import com.foodrecipes.webapp.service.UserConversionService;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashSet;
+import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * The UserController class handles HTTP requests related to user operations.
@@ -66,6 +71,15 @@ public class UserController {
         return userRepository.findById(id);
     }
 
+    @GetMapping("/{id}/recipes")
+    public Set<Recipe> getRecipesOfUser(@PathVariable Long id) {
+        User user = userRepository.findById(id).orElseThrow(NoSuchElementException::new);
+        if (user != null) {
+            return user.getRecipes();
+        }
+        return new HashSet<>();
+    }
+
     /**
      * Post Data with DTO
      * 
@@ -114,7 +128,7 @@ public class UserController {
      * @param id the ID of the user to delete.
      */
     @DeleteMapping("/{id}")
-    ResponseEntity<UserDTO> deleteUser(@PathVariable Long id) throws NoSuchAlgorithmException{
+    ResponseEntity<UserDTO> deleteUser(@PathVariable Long id) throws NoSuchAlgorithmException {
         User user = userRepository.findById(id).orElse(null);
         userRepository.deleteById(id);
         return ResponseEntity.ok(conversionService.convertToDTO(user));

@@ -1,5 +1,6 @@
 package com.foodrecipes.webapp.model;
 
+import java.util.HashSet;
 import java.util.Set;
 
 // Importing JPA annotations and other necessary Java utilities.
@@ -33,6 +34,9 @@ public class Recipe implements Comparable<String> {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @OneToMany(mappedBy = "recipe", fetch = FetchType.EAGER)
+    private Set<Comment> comments = new HashSet<>();
+
     /**
      * No-argument constructor required by JPA for creating instances.
      */
@@ -53,7 +57,7 @@ public class Recipe implements Comparable<String> {
 
     // Standard getter and setter methods for accessing and updating the field
     // values.
-    // These methods are crucial for managing the state of User objects and
+    // These methods are crucial for managing the state of Recipe objects and
     // facilitating database interactions through ORM.
 
     // HashCode, Equals, and ToString methods overridden to provide appropriate
@@ -81,7 +85,7 @@ public class Recipe implements Comparable<String> {
     public void setContent(String content) {
         this.content = content;
     }
-    
+
     public double getRating() {
         return rating;
     }
@@ -179,5 +183,13 @@ public class Recipe implements Comparable<String> {
                 return 0;
             }
         }
+    }
+
+    public Set<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(Set<Comment> comments) {
+        this.comments = comments;
     }
 }

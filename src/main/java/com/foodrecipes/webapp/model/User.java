@@ -156,6 +156,7 @@ public class User implements Comparable<Integer> {
 
     /**
      * Set one recipe in a user
+     * 
      * @param recipe
      */
     public void setRecipe(Recipe recipe) {
