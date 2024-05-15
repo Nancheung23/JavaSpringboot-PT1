@@ -17,9 +17,22 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
+	//Contorller
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    // Spring Boot JPA
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	// postgreSQL
+	implementation 'org.postgresql:postgresql:42.2.18'
+
+    // Hibernate
+    implementation 'org.hibernate:hibernate-core:6.0.0.Final'
 }
+
+apply plugin: 'java'
 
 tasks.named('test') {
 	useJUnitPlatform()
