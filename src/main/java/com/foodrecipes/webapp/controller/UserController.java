@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.foodrecipes.webapp.dto.UserDTO;
+import com.foodrecipes.webapp.model.Comment;
 import com.foodrecipes.webapp.model.Recipe;
 import com.foodrecipes.webapp.model.User;
 import com.foodrecipes.webapp.repository.RecipeRepository;
@@ -76,6 +77,15 @@ public class UserController {
         User user = userRepository.findById(id).orElseThrow(NoSuchElementException::new);
         if (user != null) {
             return user.getRecipes();
+        }
+        return new HashSet<>();
+    }
+
+    @GetMapping("/{id}/comments")
+    public Set<Comment> getCommentsOfUser(@PathVariable Long id) {
+        User user = userRepository.findById(id).orElseThrow(NoSuchElementException::new);
+        if (user != null) {
+            return user.getComments();
         }
         return new HashSet<>();
     }
