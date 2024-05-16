@@ -2,6 +2,8 @@ package com.foodrecipes.webapp.model;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 // Importing JPA annotations and other necessary Java utilities.
 import jakarta.persistence.*;
 
@@ -18,12 +20,14 @@ public class Comment {
     @Column(name = "time", nullable = false)
     private LocalDateTime ldt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "recipe_id", nullable = false)
+    @JsonBackReference
     private Recipe recipe;
 
     /**

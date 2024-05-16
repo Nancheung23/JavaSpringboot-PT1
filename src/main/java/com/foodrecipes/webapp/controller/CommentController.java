@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collector;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,8 +28,14 @@ import com.foodrecipes.webapp.service.CommentConversionService;
 public class CommentController {
     // private UserRepository userRepository;
     // private RecipeRepository recipeRepository;
-    private CommentRepository commentRepository;
-    private CommentConversionService commentConversionService;
+    private final CommentRepository commentRepository;
+    private final CommentConversionService commentConversionService;
+
+    @Autowired
+    public CommentController(CommentRepository commentRepository, CommentConversionService commentConversionService) {
+        this.commentRepository = commentRepository;
+        this.commentConversionService = commentConversionService;
+    }
 
     @GetMapping("/")
     public Iterable<Comment> getComments() {

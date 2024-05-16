@@ -15,9 +15,9 @@ import com.foodrecipes.webapp.dto.RecipeDTO;
 
 @Service
 public class RecipeConversionService {
-
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private RecipeRepository recipeRepository;
 
@@ -28,6 +28,7 @@ public class RecipeConversionService {
      * @param dto
      * @return
      */
+    @Transactional
     public Recipe convertToEntity(RecipeDTO dto) {
         Recipe recipe = new Recipe();
         recipe.setTitle(dto.getTitle());
@@ -37,6 +38,12 @@ public class RecipeConversionService {
         return recipe;
     }
 
+    /**
+     * Convert Recipe object to DTO object
+     * @param entity
+     * @return
+     */
+    @Transactional
     /**
      * Convert recipe object to dto object,
      * no need for verification because user is a response entity.

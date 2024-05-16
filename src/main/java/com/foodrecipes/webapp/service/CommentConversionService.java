@@ -18,6 +18,8 @@ import jakarta.transaction.Transactional;
 public class CommentConversionService {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
     private RecipeRepository recipeRepository;
 
     DateTimeFormatter dft = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -45,7 +47,14 @@ public class CommentConversionService {
         comment.setRecipe(recipeRepository.findById(recipeId).orElseThrow(NoSuchElementException::new));
         return comment;
     }
-
+    
+    /**
+     * Convert recipe object to dto object,
+     * 
+     * @param comment
+     * @return
+     */
+    @Transactional
     public CommentDTO convertToDto(Comment comment) {
         return new CommentDTO(comment.getContent(), comment.getLdt().toString(), comment.getRecipe().getId(),
                 comment.getUser().getId());
