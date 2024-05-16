@@ -4,18 +4,25 @@ package com.foodrecipes.webapp.controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.foodrecipes.webapp.dto.CommentDTO;
+import com.foodrecipes.webapp.dto.RecipeDTO;
 import com.foodrecipes.webapp.dto.UserDTO;
 import com.foodrecipes.webapp.model.Comment;
 import com.foodrecipes.webapp.model.Recipe;
 import com.foodrecipes.webapp.model.User;
+import com.foodrecipes.webapp.repository.CommentRepository;
 import com.foodrecipes.webapp.repository.RecipeRepository;
 import com.foodrecipes.webapp.repository.UserRepository;
+import com.foodrecipes.webapp.service.CommentConversionService;
+import com.foodrecipes.webapp.service.RecipeConversionService;
 import com.foodrecipes.webapp.service.UserConversionService;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
@@ -37,6 +44,10 @@ public class UserController {
     // List to hold User objects. Initialized as an ArrayList.
     private final UserRepository userRepository;
     private final UserConversionService conversionService;
+    private final RecipeRepository recipeRepository;
+    private final RecipeConversionService recipeConversionService;
+    private final CommentRepository commentRepository;
+    private final CommentConversionService commentConversionService;
 
     /**
      * Constructor for UserController.
@@ -44,10 +55,16 @@ public class UserController {
      * @param userRepository
      * @param conversionService
      */
-    // @Autowired
-    public UserController(UserRepository userRepository, UserConversionService conversionService) {
+    @Autowired
+    public UserController(UserRepository userRepository, UserConversionService conversionService,
+    RecipeRepository recipeRepository, RecipeConversionService recipeConversionService,
+    CommentRepository commentRepository, CommentConversionService commentConversionService) {
         this.userRepository = userRepository;
         this.conversionService = conversionService;
+        this.recipeRepository = null;
+        this.recipeConversionService = new RecipeConversionService();
+        this.commentRepository = null;
+        this.commentConversionService = null;
     }
 
     /**
@@ -107,6 +124,41 @@ public class UserController {
         UserDTO responseDto = conversionService.convertToDTO(user);
         // return Dto in 200 status
         return ResponseEntity.ok(responseDto);
+    }
+
+    @PostMapping("/{userId}/comments/{recipeId}/post")
+    public ResponseEntity<CommentDTO> createCommentFromUserForRecipe(@PathVariable Long userId, @PathVariable Long recipeId, @RequestBody CommentDTO commentDto) {
+        User user = userRepository.findById(userId).orElse(null);
+        Recipe recipe = recipeRepository.findById(recipeId).orElse(null);
+        if (user != null && recipe != null) {
+            Comment comment = commentConversionService.convertToEntity(commentDto);
+            comment.setUser(user);
+            comment.setRecipe(recipe);
+            commentRepository.save(comment);
+            user.setComment(comment);
+            recipe.setComment(comment);
+            return ResponseEntity.ok(commentConversionService.convertToDto(comment));
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/{userId}/comments/{recipeId}/rating")
+    public ResponseEntity<RecipeDTO> createRatingFromUserForRecipe(@PathVariable Long userId, @PathVariable Long recipeId, @RequestBody double rating) {
+        User user = userRepository.findById(userId).orElse(null);
+        Recipe recipe = recipeRepository.findById(recipeId).orElse(null);
+        if (user!= null && recipe!= null) {
+            if (!user.getRecipes().contains(recipe)) {
+                recipe.setRating(rating);
+                recipe.setId(recipeId);
+                recipeRepository.save(recipe);
+                return ResponseEntity.ok(recipeConversionService.convertToDto(recipe));
+            } else {
+                return ResponseEntity.badRequest().build();
+            }
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     /**

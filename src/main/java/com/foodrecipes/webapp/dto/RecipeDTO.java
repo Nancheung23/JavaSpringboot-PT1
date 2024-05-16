@@ -67,6 +67,7 @@ public class RecipeDTO {
         if (rating < 0) {
             throw new IllegalArgumentException("Invalid rating");
         }
+        rating = (getRating() + rating) / 2;
         this.rating = rating;
     }
 
