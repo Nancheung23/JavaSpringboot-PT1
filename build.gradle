@@ -30,6 +30,9 @@ dependencies {
 
     // Hibernate
     implementation 'org.hibernate:hibernate-core:6.0.0.Final'
+	
+	// build.gradle
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 }
 
 apply plugin: 'java'
