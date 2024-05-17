@@ -22,4 +22,8 @@ public class DefaultController {
         return "home";
     }
 
+    @GetMapping("/test")
+    public String showTest() {
+        return "test";
+    }
 }
