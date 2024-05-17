@@ -1,5 +1,10 @@
 package com.foodrecipes.webapp.model;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 // Importing JPA annotations and other necessary Java utilities.
 // No javax in current version
 import jakarta.persistence.*;
@@ -40,6 +45,14 @@ public class User implements Comparable<Integer> {
 
     @Column(name = "age") // No specific constraints, defaults apply.
     private int age; // User's age.
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @JsonManagedReference
+    private Set<Recipe> recipes;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @JsonManagedReference
+    private Set<Comment> comments;
 
     /**
      * No-argument constructor required by JPA for creating instances.
@@ -138,6 +151,40 @@ public class User implements Comparable<Integer> {
         this.age = age;
     }
 
+    public Set<Recipe> getRecipes() {
+        return recipes;
+    }
+
+    public void setRecipes(Set<Recipe> recipes) {
+        this.recipes = recipes;
+    }
+
+    /**
+     * Set one recipe in a user
+     * 
+     * @param recipe
+     */
+    public void setRecipe(Recipe recipe) {
+        if (recipes == null) {
+            this.recipes = new HashSet<>();
+        }
+        recipes.add(recipe);
+    }
+
+    public Set<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(Set<Comment> comments) {
+        this.comments = comments;
+    }
+
+    public void setComment(Comment comment) {
+        if (comment == null) {
+            this.comments = new HashSet<>();
+        }
+        comments.add(comment);
+    }
     // Overriding the hashCode, equals, and toString methods for proper value
     // comparison and output formatting
 
@@ -159,17 +206,50 @@ public class User implements Comparable<Integer> {
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (obj == null || getClass() != obj.getClass())
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
             return false;
         User other = (User) obj;
-        return id.equals(other.id) && name.equals(other.name) &&
-                password.equals(other.password) && nickName.equals(other.nickName) &&
-                avatarUrl.equals(other.avatarUrl) && email.equals(other.email) && age == other.age;
+        if (id == null) {
+            if (other.id != null)
+                return false;
+        } else if (!id.equals(other.id))
+            return false;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        if (password == null) {
+            if (other.password != null)
+                return false;
+        } else if (!password.equals(other.password))
+            return false;
+        if (nickName == null) {
+            if (other.nickName != null)
+                return false;
+        } else if (!nickName.equals(other.nickName))
+            return false;
+        if (avatarUrl == null) {
+            if (other.avatarUrl != null)
+                return false;
+        } else if (!avatarUrl.equals(other.avatarUrl))
+            return false;
+        if (email == null) {
+            if (other.email != null)
+                return false;
+        } else if (!email.equals(other.email))
+            return false;
+        if (age != other.age)
+            return false;
+        return true;
     }
 
     @Override
     public String toString() {
-        return String.format("User [id=%s, name=%s, password=%s, nickName=%s, avatarUrl=%s, email=%s, age=%d]",
-                id, name, password, nickName, avatarUrl, email, age);
+        return "User [id=" + id + ", name=" + name + ", password=" + password + ", nickName=" + nickName
+                + ", avatarUrl=" + avatarUrl + ", email=" + email + ", age=" + age + "]";
     }
+
 }
