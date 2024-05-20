@@ -150,10 +150,10 @@ public class UserDTO {
 
     @Override
     public String toString() {
-        return "Name:  " + name + 
-        "\nNickName: " + nickName + 
-        "\nAvatarUrl: " + avatarUrl + 
-        "\nEmail: " + email +
-        "\nAge: " + age;
+        return "Name:  " + name +
+                "\nNickName: " + nickName +
+                "\nAvatarUrl: " + avatarUrl +
+                "\nEmail: " + email +
+                "\nAge: " + age;
     }
 }
