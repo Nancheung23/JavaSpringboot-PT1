@@ -24,7 +24,7 @@ import com.foodrecipes.webapp.service.RecipeConversionService;
 import com.foodrecipes.webapp.service.UserConversionService;
 
 @RestController
-@RequestMapping("/recipes")
+@RequestMapping("/api/recipes")
 public class RecipeController {
     private final RecipeRepository recipeRepository;
     private final RecipeConversionService recipeConversionService;

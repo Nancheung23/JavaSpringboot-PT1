@@ -24,7 +24,7 @@ import com.foodrecipes.webapp.repository.CommentRepository;
 import com.foodrecipes.webapp.service.CommentConversionService;
 
 @RestController
-@RequestMapping("/comments")
+@RequestMapping("/api/comments")
 public class CommentController {
     // private UserRepository userRepository;
     // private RecipeRepository recipeRepository;

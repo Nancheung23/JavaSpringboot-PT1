@@ -39,7 +39,7 @@ import java.util.Set;
  * in this controller will be treated as having the base path "/".
  */
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UserController {
     // List to hold User objects. Initialized as an ArrayList.
     private final UserRepository userRepository;
