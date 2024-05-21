@@ -1,6 +1,7 @@
 package com.foodrecipes.webapp.service;
 
 import com.foodrecipes.webapp.model.User;
+import com.foodrecipes.webapp.repository.CustomPasswordEncoder;
 import com.foodrecipes.webapp.repository.UserRepository;
 import com.foodrecipes.webapp.security.HashingUtility;
 import com.foodrecipes.webapp.dto.UserDTO;
@@ -11,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,7 +20,7 @@ public class UserConversionService implements UserDetailsService{
     private UserRepository userRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private CustomPasswordEncoder passwordEncoder;
 
     /**
      * Convert DTO object to User object,
@@ -37,10 +37,9 @@ public class UserConversionService implements UserDetailsService{
         // translate password to hashed password
         if (dto.getSalt() == null) {
             String salt = HashingUtility.generateSalt();
-            String hashedPassword = HashingUtility.hashPassword(dto.getPassword(),
-            salt);
-            String encodePassword = passwordEncoder.encode(hashedPassword);
-            user.setPassword(encodePassword);
+            passwordEncoder.setSalt(salt);
+            String hashedPassword = passwordEncoder.encode(dto.getPassword());
+            user.setPassword(hashedPassword);
             user.setSalt(salt);
         } else {
             // if already exist salt, convert LAZY

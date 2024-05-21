@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.foodrecipes.webapp.dto.AuthRequest;
 import com.foodrecipes.webapp.dto.AuthResponse;
+import com.foodrecipes.webapp.repository.CustomPasswordEncoder;
 import com.foodrecipes.webapp.repository.UserRepository;
 
 import java.util.Optional;
@@ -21,7 +22,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -36,7 +36,7 @@ public class AuthController {
 
     private UserRepository userRepository;
 
-    private PasswordEncoder passwordEncoder;
+    private CustomPasswordEncoder passwordEncoder;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
@@ -48,7 +48,7 @@ public class AuthController {
     @Autowired
     public AuthController(AuthenticationManager authenticationManager, JwtUtility jwtUtility,
             UserConversionService userConversionService, UserRepository userRepository,
-            PasswordEncoder passwordEncoder) {
+            CustomPasswordEncoder passwordEncoder) {
         this.authenticationManager = authenticationManager;
         this.jwtUtility = jwtUtility;
         this.userConversionService = userConversionService;
@@ -69,12 +69,11 @@ public class AuthController {
 
             User user = userOptional.get();
             String salt = user.getSalt();
-            String hashedPassword = HashingUtility.hashPassword(rawPassword, salt);
+            passwordEncoder.setSalt(salt);
+            String hashedPassword = passwordEncoder.encode(rawPassword);
+            logger.debug("Input password: {}\nEncode result: {}\n", hashedPassword, user.getPassword());
 
-            String testEncode = passwordEncoder.encode(hashedPassword);
-            logger.debug("Input password: {}\nEncode result: {}\n", hashedPassword, testEncode);
-
-            if (passwordEncoder.matches(hashedPassword, user.getPassword())) {
+            if (passwordEncoder.matches(rawPassword, user.getPassword())) {
                 // Authenticate user
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                         authRequest.getUsername(), rawPassword);
