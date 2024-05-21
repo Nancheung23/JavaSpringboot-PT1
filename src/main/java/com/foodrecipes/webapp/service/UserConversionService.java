@@ -2,15 +2,16 @@ package com.foodrecipes.webapp.service;
 
 import com.foodrecipes.webapp.model.User;
 import com.foodrecipes.webapp.repository.UserRepository;
+import com.foodrecipes.webapp.security.HashingUtility;
 import com.foodrecipes.webapp.dto.UserDTO;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,18 +19,34 @@ public class UserConversionService implements UserDetailsService{
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     /**
      * Convert DTO object to User object,
      * invoke getter and setter to verify data correctness.
      * 
      * @param dto
      * @return user
+     * @throws NoSuchAlgorithmException 
      */
-    public User convertToEntity(UserDTO dto) {
+    public User convertToEntity(UserDTO dto) throws NoSuchAlgorithmException {
         User user = new User();
         user.setName(dto.getName());
         user.setNickName(dto.getNickName());
-        user.setPassword(dto.getPassword());
+        // translate password to hashed password
+        if (dto.getSalt() == null) {
+            String salt = HashingUtility.generateSalt();
+            String hashedPassword = HashingUtility.hashPassword(dto.getPassword(),
+            salt);
+            String encodePassword = passwordEncoder.encode(hashedPassword);
+            user.setPassword(encodePassword);
+            user.setSalt(salt);
+        } else {
+            // if already exist salt, convert LAZY
+            user.setPassword(dto.getPassword());
+            user.setSalt(dto.getSalt());
+        }
         user.setEmail(dto.getEmail());
         user.setAvatarUrl(dto.getAvatarUrl());
         user.setAge(dto.getAge());
@@ -59,6 +76,7 @@ public class UserConversionService implements UserDetailsService{
         // parse username and password to UserDetails' username and password
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getName())
+                // get password which encrypted by SHA-256 and salt
                 .password(user.getPassword())
                 .authorities("USER")
                 .build();

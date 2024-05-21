@@ -58,7 +58,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // load from database 
                 UserDetails userDetails = userConversionService.loadUserByUsername(username);
                 // check valid jwt
-                if (jwtUtility.validateToken(jwt, userDetails)) {
+                boolean flag = jwtUtility.validateToken(jwt, userDetails);
+                if (flag) {
                     // UsernamePasswordAuthenticationToken
                     UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities());

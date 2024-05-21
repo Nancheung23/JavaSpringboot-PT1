@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
@@ -87,7 +88,7 @@ public class RecipeController {
     }
 
     @PostMapping("/{id}/view")
-    public ResponseEntity<RecipeDTO> viewRecipe(@PathVariable Long id, @RequestBody UserDTO user) {
+    public ResponseEntity<RecipeDTO> viewRecipe(@PathVariable Long id, @RequestBody UserDTO user) throws NoSuchAlgorithmException {
         recipeConversionService.incrementRecipeViews(id, userConversionService.convertToEntity(user).getId());
         return ResponseEntity.ok(
                 recipeConversionService.convertToDto(userConversionService.convertToEntity(user).getRecipes().stream()

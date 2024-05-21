@@ -15,6 +15,7 @@ public class UserDTO {
     private String avatarUrl; // URL of the user's avatar image, important for user interface display.
     private String email; // User's email address, can be used for contact or identification purposes.
     private int age; // User's age, could be relevant for context or personalized content.
+    private String salt;
 
     // Non-parameter constructor
     public UserDTO() {
@@ -36,8 +37,7 @@ public class UserDTO {
         this.name = name;
         this.nickName = nickName;
         // encrypt password
-        String salt = HashingUtility.generateSalt();
-        this.password = HashingUtility.hashPassword(password, salt);
+        setPassword(password);
         this.avatarUrl = avatarUrl;
         this.email = email;
         this.age = age;
@@ -142,10 +142,14 @@ public class UserDTO {
      * when set password into DTO object. Protect user password.
      * 
      * @param password
+     * @return salt
      */
-    public void setPassword(String password) throws NoSuchAlgorithmException {
-        String salt = HashingUtility.generateSalt();
-        this.password = HashingUtility.hashPassword(password, salt);
+    public void setPassword(String password)  {
+        this.password = password;
+    }
+    
+    public String getSalt() {
+        return this.salt;
     }
 
     @Override

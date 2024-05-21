@@ -46,6 +46,9 @@ public class User implements Comparable<Integer> {
     @Column(name = "age") // No specific constraints, defaults apply.
     private int age; // User's age.
 
+    @Column(name = "salt") // store specific salt value for authorization
+    private String salt;
+
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     @JsonManagedReference
     private Set<Recipe> recipes;
@@ -149,6 +152,14 @@ public class User implements Comparable<Integer> {
 
     public void setAge(int age) {
         this.age = age;
+    }
+
+    public String getSalt() {
+        return this.salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
     }
 
     public Set<Recipe> getRecipes() {
