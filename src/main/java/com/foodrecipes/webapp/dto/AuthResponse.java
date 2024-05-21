@@ -1,5 +1,8 @@
 package com.foodrecipes.webapp.dto;
 
+/**
+ * Object for authentication usage (receive request)
+ */
 public class AuthResponse {
     private String jwt;
 

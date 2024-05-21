@@ -1,8 +1,5 @@
 package com.foodrecipes.webapp.dto;
 
-import java.security.NoSuchAlgorithmException;
-import com.foodrecipes.webapp.security.HashingUtility;
-
 /**
  * Data Transfer Object for user details. Used to pass user data safely without
  * exposing sensitive information.
@@ -32,12 +29,10 @@ public class UserDTO {
      * @param age
      * @throws NoSuchAlgorithmException
      */
-    public UserDTO(String name, String nickName, String password, String avatarUrl, String email, int age)
-            throws NoSuchAlgorithmException {
+    public UserDTO(String name, String nickName, String password, String avatarUrl, String email, int age) {
         this.name = name;
         this.nickName = nickName;
-        // encrypt password
-        setPassword(password);
+        this.password = password;
         this.avatarUrl = avatarUrl;
         this.email = email;
         this.age = age;
@@ -137,17 +132,10 @@ public class UserDTO {
         return password;
     }
 
-    /**
-     * Translate raw password to hashpassword (SHA-256) with salt value,
-     * when set password into DTO object. Protect user password.
-     * 
-     * @param password
-     * @return salt
-     */
-    public void setPassword(String password)  {
+    public void setPassword(String password) {
         this.password = password;
     }
-    
+
     public String getSalt() {
         return this.salt;
     }

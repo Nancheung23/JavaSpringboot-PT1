@@ -21,9 +21,12 @@ public class JwtUtility {
 
     private Key key;
 
+    /**
+     * Set key to a value at least 256 bytes long
+     */
     @PostConstruct
     public void init() {
-        this.key = Keys.secretKeyFor(SignatureAlgorithm.HS256); 
+        this.key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     }
 
     private Key getSigningKey() {
@@ -35,6 +38,13 @@ public class JwtUtility {
         return extractClaim(token, Claims::getSubject);
     }
 
+    /**
+     * Set expiration of token,
+     * Set timer in `src\main\resources\application.properties`
+     * 
+     * @param token
+     * @return
+     */
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
@@ -66,6 +76,13 @@ public class JwtUtility {
         return doGenerateToken(claims, userDetails.getUsername());
     }
 
+    /**
+     * Generate Token
+     * 
+     * @param claims
+     * @param subject
+     * @return
+     */
     private String doGenerateToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
                 .setClaims(claims)

@@ -15,7 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserConversionService implements UserDetailsService{
+public class UserConversionService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
 
@@ -28,7 +28,7 @@ public class UserConversionService implements UserDetailsService{
      * 
      * @param dto
      * @return user
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      */
     public User convertToEntity(UserDTO dto) throws NoSuchAlgorithmException {
         User user = new User();

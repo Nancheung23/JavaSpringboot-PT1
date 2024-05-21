@@ -30,32 +30,53 @@ public class SecurityConfig {
     @Autowired
     private CustomPasswordEncoder passwordEncoder;
 
+    /**
+     * For userDetailsService interface's instance, 
+     * all adapt passwordEncodedr (CustomPasswordEncoder implements PasswordEncoder)
+     * @param auth
+     * @throws Exception
+     */
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userConversionService).passwordEncoder(passwordEncoder);
     }
 
+    /**
+     * Bean created for AuthenticationManager,
+     * Manage auths with configuration
+     * @param authenticationConfiguration
+     * @return AuthenticationManager
+     * @throws Exception
+     */
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
+    /**
+     * Filter for permit and check routers,
+     * allows every GET, and POST in /auth/**
+     * authenticate users, recipes and comments
+     * @param http
+     * @return
+     * @throws Exception
+     */
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(authorize -> authorize
-                // Permit all GET requests, others authenticate
-                .requestMatchers(HttpMethod.GET, "/**").permitAll()
-                .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/api/users/**").authenticated()
-                .requestMatchers("/api/recipes/**").authenticated() 
-                .requestMatchers("/api/comments/**").authenticated()
-                // Authenticate other requests
-                .anyRequest().authenticated()
-            )
-            // Disable session
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); 
-        
+                .authorizeHttpRequests(authorize -> authorize
+                        // Permit all GET requests, others authenticate
+                        .requestMatchers(HttpMethod.GET, "/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/api/users/**").authenticated()
+                        .requestMatchers("/api/recipes/**").authenticated()
+                        .requestMatchers("/api/comments/**").authenticated()
+                        // Authenticate other requests
+                        .anyRequest().authenticated())
+                // Disable session
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
         // Add the JWT authentication filter
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

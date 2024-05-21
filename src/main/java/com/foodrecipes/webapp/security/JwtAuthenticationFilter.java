@@ -2,7 +2,6 @@ package com.foodrecipes.webapp.security;
 
 import java.io.IOException;
 import java.util.NoSuchElementException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -10,10 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import com.foodrecipes.webapp.service.UserConversionService;
-
-import io.micrometer.common.lang.NonNull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,12 +27,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private UserConversionService userConversionService;
 
     /**
-     * Filter authorization method, focus on header. 
-     * @param HttpServletRequest request,
+     * Filter authorization method, focus on header.
+     * 
+     * @param HttpServletRequest  request,
      * @param HttpServletResponse response,
-     * @param FilterChain filterChain
+     * @param FilterChain         filterChain
      */
-
     @SuppressWarnings("null")
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -55,7 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // if username exists but no auth info
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
-                // load from database 
+                // load from database
                 UserDetails userDetails = userConversionService.loadUserByUsername(username);
                 // check valid jwt
                 boolean flag = jwtUtility.validateToken(jwt, userDetails);
@@ -64,7 +60,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities());
                     // Set auth info details
-                    usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    usernamePasswordAuthenticationToken
+                            .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     // Set auth token into SecurityContextHolder
                     SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
                 }
