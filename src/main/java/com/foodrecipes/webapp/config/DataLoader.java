@@ -100,10 +100,10 @@ public class DataLoader {
                 userRepository.saveAll(users);
 
                 List<RecipeDTO> dtosR = List.of(
-                                new RecipeDTO("Test Recipe1", "Test Recipe1", 0, 0, 1L),
-                                new RecipeDTO("Test Recipe2", "Test Recipe2", 0, 0, 2L),
-                                new RecipeDTO("Test Recipe3", "Test Recipe3", 0, 0, 3L),
-                                new RecipeDTO("Test Recipe4", "Test Recipe4", 0, 0, 1L));
+                                new RecipeDTO("Test Recipe1", "Test Recipe1", 0, 0, "", 1L),
+                                new RecipeDTO("Test Recipe2", "Test Recipe2", 0, 0, "", 2L),
+                                new RecipeDTO("Test Recipe3", "Test Recipe3", 0, 0, "", 3L),
+                                new RecipeDTO("Test Recipe4", "Test Recipe4", 0, 0, "", 1L));
 
                 List<Recipe> recipes = dtosR.stream()
                                 .map(recipeConversionService::convertToEntity)
@@ -112,12 +112,12 @@ public class DataLoader {
                 recipeRepository.saveAll(recipes);
 
                 List<CommentDTO> dtosC = List.of(
-                                new CommentDTO("Test Comment1", "2024-05-15 14:45:11", 1L, 1L),
-                                new CommentDTO("Test Comment2", "2023-06-20 07:34:55", 2L, 1L),
-                                new CommentDTO("Test Comment3", "2022-08-11 22:16:03", 2L, 3L),
-                                new CommentDTO("Test Comment4", "2024-09-07 18:02:47", 2L, 1L),
-                                new CommentDTO("Test Comment5", "2023-04-21 17:15:20", 1L, 2L),
-                                new CommentDTO("Test Comment6", "2022-11-03 13:51:29", 3L, 1L));
+                                new CommentDTO("Test Comment1", "2024-05-15 14:45:11","", 1L, 1L),
+                                new CommentDTO("Test Comment2", "2023-06-20 07:34:55","", 2L, 1L),
+                                new CommentDTO("Test Comment3", "2022-08-11 22:16:03","", 2L, 3L),
+                                new CommentDTO("Test Comment4", "2024-09-07 18:02:47","", 2L, 1L),
+                                new CommentDTO("Test Comment5", "2023-04-21 17:15:20","", 1L, 2L),
+                                new CommentDTO("Test Comment6", "2022-11-03 13:51:29","", 3L, 1L));
 
                 List<Comment> comments = dtosC.stream()
                                 .map(commentConversionService::convertToEntity)

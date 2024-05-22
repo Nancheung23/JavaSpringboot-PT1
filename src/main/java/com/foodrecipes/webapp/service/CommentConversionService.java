@@ -56,7 +56,7 @@ public class CommentConversionService {
      */
     @Transactional
     public CommentDTO convertToDto(Comment comment) {
-        return new CommentDTO(comment.getContent(), comment.getLdt().toString(), comment.getRecipe().getId(),
+        return new CommentDTO(comment.getContent(), comment.getLdt().toString(), comment.getPicture(), comment.getRecipe().getId(),
                 comment.getUser().getId());
     }
 }

@@ -5,6 +5,7 @@ public class RecipeDTO {
     private String content;
     private double rating;
     private int views;
+    private String picture;
     private Long userId;
 
     // Non-parameter constructor
@@ -17,13 +18,15 @@ public class RecipeDTO {
      * @param content
      * @param rating
      * @param views
+     * @param picture
      * @param userId
      */
-    public RecipeDTO(String title, String content, double rating, int views, Long userId) {
+    public RecipeDTO(String title, String content, double rating, int views, String picture, Long userId) {
         this.title = title;
         this.content = content;
         this.rating = rating;
         this.views = views;
+        this.picture = picture;
         this.userId = userId;
     }
 
@@ -125,6 +128,14 @@ public class RecipeDTO {
         } else if (!userId.equals(other.userId))
             return false;
         return true;
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
     }
 
     @Override
