@@ -33,6 +33,9 @@ public class Recipe implements Comparable<String> {
     @Column(name = "views", nullable = false)
     private int views;
 
+    @Column(name = "picture", nullable = true)
+    private String picture;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
@@ -212,6 +215,14 @@ public class Recipe implements Comparable<String> {
     public String toString() {
         return "Recipe [id=" + id + ", title=" + title + ", content=" + content + ", rating=" + rating + ", views="
                 + views + ", user=" + user + "]";
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
     }
 
 }

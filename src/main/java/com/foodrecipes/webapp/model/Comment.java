@@ -20,6 +20,9 @@ public class Comment {
     @Column(name = "time", nullable = false)
     private LocalDateTime ldt;
 
+    @Column(name = "picture", nullable = true)
+    private String picture;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
@@ -91,6 +94,14 @@ public class Comment {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
     }
 
     public Recipe getRecipe() {
