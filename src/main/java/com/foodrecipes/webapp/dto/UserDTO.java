@@ -19,13 +19,14 @@ public class UserDTO {
     private String password; // User's password, important for authentication purposes.
     private String avatarUrl; // URL of the user's avatar image, important for user interface display.
     private String email; // User's email address, can be used for contact or identification purposes.
+    private int age; // User's age, could be relevant for context or personalized content.
+    private String salt;
     // private int age; // User's age, could be relevant for context or personalized content.
     private String birthDate; // User's birthdate, can be used for age restrictions and personalized content.
 
     private static final Set<Character> PROHIBITED_SYMBOLS = Set.of('<', '>', '/', '\\', '\'', '"', ';', ':', '&', '|', '!', '#', '$', '%', '^', '*', '(', ')', '+', '=', '?', '{', '}', '[', ']', ',', '.', '@', ' ', '\t', '\n');
     private static final String EMAIL_VALIDATION_REGEX = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
     private static final Pattern PATTERN = Pattern.compile(EMAIL_VALIDATION_REGEX);
-
 
     // Non-parameter constructor
     public UserDTO() {
@@ -210,17 +211,13 @@ public class UserDTO {
     public String getPassword() {
         return password;
     }
+  
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-    /**
-     * Setter: password
-     * Translate raw password to hashpassword (SHA-256) with salt value,
-     * when set password into DTO object. Protect user password.
-     * 
-     * @param password
-     */
-    public void setPassword(String password) throws NoSuchAlgorithmException {
-        String salt = HashingUtility.generateSalt();
-        this.password = HashingUtility.hashPassword(password, salt);
+    public String getSalt() {
+        return this.salt;
     }
 
     /**

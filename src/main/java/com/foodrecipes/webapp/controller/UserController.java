@@ -8,13 +8,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.foodrecipes.webapp.dto.CommentDTO;
 import com.foodrecipes.webapp.dto.RecipeDTO;
 import com.foodrecipes.webapp.dto.UserDTO;
+import com.foodrecipes.webapp.exception.StorageException;
 import com.foodrecipes.webapp.model.Comment;
 import com.foodrecipes.webapp.model.Recipe;
 import com.foodrecipes.webapp.model.User;
@@ -22,6 +25,7 @@ import com.foodrecipes.webapp.repository.CommentRepository;
 import com.foodrecipes.webapp.repository.RecipeRepository;
 import com.foodrecipes.webapp.repository.UserRepository;
 import com.foodrecipes.webapp.service.CommentConversionService;
+import com.foodrecipes.webapp.service.ImageStorageService;
 import com.foodrecipes.webapp.service.RecipeConversionService;
 import com.foodrecipes.webapp.service.UserConversionService;
 import java.security.NoSuchAlgorithmException;
@@ -39,7 +43,7 @@ import java.util.Set;
  * in this controller will be treated as having the base path "/".
  */
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UserController {
     // List to hold User objects. Initialized as an ArrayList.
     private final UserRepository userRepository;
@@ -48,6 +52,7 @@ public class UserController {
     private final RecipeConversionService recipeConversionService;
     private final CommentRepository commentRepository;
     private final CommentConversionService commentConversionService;
+    private final ImageStorageService imageStorageService;
 
     /**
      * Constructor for UserController.
@@ -58,13 +63,15 @@ public class UserController {
     @Autowired
     public UserController(UserRepository userRepository, UserConversionService conversionService,
     RecipeRepository recipeRepository, RecipeConversionService recipeConversionService,
-    CommentRepository commentRepository, CommentConversionService commentConversionService) {
+    CommentRepository commentRepository, CommentConversionService commentConversionService,
+    ImageStorageService imageStorageService) {
         this.userRepository = userRepository;
         this.conversionService = conversionService;
-        this.recipeRepository = null;
-        this.recipeConversionService = new RecipeConversionService();
-        this.commentRepository = null;
-        this.commentConversionService = null;
+        this.recipeRepository = recipeRepository;
+        this.recipeConversionService = recipeConversionService;
+        this.commentRepository = commentRepository;
+        this.commentConversionService = commentConversionService;
+        this.imageStorageService = imageStorageService;
     }
 
     /**
@@ -195,4 +202,21 @@ public class UserController {
         userRepository.deleteById(id);
         return ResponseEntity.ok(conversionService.convertToDTO(user));
     }
+
+    /**
+     * Every time when user upload a image, store into /upload, then save url info of user
+     * @param id
+     * @param file
+     * @return
+     * @throws NoSuchAlgorithmException
+     */
+    @PostMapping("/{id}/avatar")
+    ResponseEntity<UserDTO> uploadAvatar(@PathVariable Long id, @RequestParam("file") MultipartFile file) throws NoSuchAlgorithmException {
+        User user = userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User not found"));
+        String fileUrl = imageStorageService.fileStore(file);
+        user.setAvatarUrl(fileUrl);
+        user.setId(id);
+        userRepository.save(user);
+        return ResponseEntity.ok(conversionService.convertToDTO(user));
+    } 
 }

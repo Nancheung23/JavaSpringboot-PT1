@@ -53,7 +53,7 @@ public class RecipeConversionService {
      */
     public RecipeDTO convertToDto(Recipe entity) {
         return new RecipeDTO(entity.getTitle(), entity.getContent(), entity.getRating(), entity.getViews(),
-                entity.getUser().getId());
+                entity.getPicture(), entity.getUser().getId());
     }
 
     @Transactional

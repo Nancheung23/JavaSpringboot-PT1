@@ -3,6 +3,7 @@ package com.foodrecipes.webapp.dto;
 public class CommentDTO {
     private String content;
     private String date;
+    private String picture;
     private Long userId;
     private Long recipeId;
 
@@ -17,12 +18,14 @@ public class CommentDTO {
      * 
      * @param content
      * @param date
+     * @param picture
      * @param userId
      * @param recipeId
      */
-    public CommentDTO(String content, String date, Long userId, Long recipeId) {
+    public CommentDTO(String content, String date, String picture, Long userId, Long recipeId) {
         this.content = content;
         this.date = date;
+        this.picture = picture;
         this.userId = userId;
         this.recipeId = recipeId;
     }
@@ -105,6 +108,14 @@ public class CommentDTO {
         } else if (!recipeId.equals(other.recipeId))
             return false;
         return true;
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
     }
 
     @Override

@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.foodrecipes.webapp.dto.CommentDTO;
 import com.foodrecipes.webapp.model.Comment;
@@ -22,19 +24,22 @@ import com.foodrecipes.webapp.repository.CommentRepository;
 // import com.foodrecipes.webapp.repository.RecipeRepository;
 // import com.foodrecipes.webapp.repository.UserRepository;
 import com.foodrecipes.webapp.service.CommentConversionService;
+import com.foodrecipes.webapp.service.ImageStorageService;
 
 @RestController
-@RequestMapping("/comments")
+@RequestMapping("/api/comments")
 public class CommentController {
     // private UserRepository userRepository;
     // private RecipeRepository recipeRepository;
     private final CommentRepository commentRepository;
     private final CommentConversionService commentConversionService;
+    private final ImageStorageService imageStorageService;
 
     @Autowired
-    public CommentController(CommentRepository commentRepository, CommentConversionService commentConversionService) {
+    public CommentController(CommentRepository commentRepository, CommentConversionService commentConversionService, ImageStorageService imageStorageService) {
         this.commentRepository = commentRepository;
         this.commentConversionService = commentConversionService;
+        this.imageStorageService = imageStorageService;
     }
 
     @GetMapping("/")
@@ -72,6 +77,16 @@ public class CommentController {
         if (comment != null) {
             commentRepository.delete(comment);
         }
+        return ResponseEntity.ok(commentConversionService.convertToDto(comment));
+    }
+
+    @PostMapping("/{id}/image")
+    public ResponseEntity<CommentDTO> postImage(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        Comment comment = commentRepository.findById(id).orElseThrow(() -> new NoSuchElementException("comment not found"));
+        String fileUrl = imageStorageService.fileStore(file);
+        comment.setPicture(fileUrl);
+        comment.setId(id);
+        commentRepository.save(comment);
         return ResponseEntity.ok(commentConversionService.convertToDto(comment));
     }
 }
