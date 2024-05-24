@@ -65,9 +65,10 @@ public class DataLoader {
     @Transactional
     public void loadData() throws NoSuchAlgorithmException {
         List<UserDTO> dtos = List.of(
-                new UserDTO("Yannan Zhang", "nan", "admin", "http://www.google.com", "yannan.zhang@tuni.fi", 27),
-                new UserDTO("Test User", "test", "test", "https://chatgpt.com", "testUser@test.fi", 99),
-                new UserDTO("Test User 2", "Test", "test", "http://www.youtube.com", "test@test.fi", 1)
+                new UserDTO("Yannan_Zhang", "nan", "admin", "http://localhost:8080/uploads/test.png", "yannan.zhang@tuni.fi", "20.04.1997"),
+                new UserDTO("TestUser", "test1", "test1_password", "https://chatgpt.com", "testUser@test.fi", "16.09.1950"),
+                new UserDTO("TestUser2", "test2", "test2_password", "http://www.youtube.com", "test@test.fi", "23.04.2000"),
+                new UserDTO("TestUser3", "test3", "test3_password", "https://www.tuni.fi/en", "test_testing@test.fi", "01.01.1980")
         );
 
         List<User> users = dtos.stream()
