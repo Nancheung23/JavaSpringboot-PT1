@@ -48,7 +48,7 @@ public class UserConversionService implements UserDetailsService {
         }
         user.setEmail(dto.getEmail());
         user.setAvatarUrl(dto.getAvatarUrl());
-        user.setAge(dto.getAge());
+        user.setBirthDate(dto.getBirthDate());
         return user;
     }
 
@@ -62,7 +62,7 @@ public class UserConversionService implements UserDetailsService {
      */
     public UserDTO convertToDTO(User user) throws NoSuchAlgorithmException {
         return new UserDTO(user.getName(), user.getNickName(), user.getPassword(), user.getAvatarUrl(),
-                user.getEmail(), user.getAge());
+                user.getEmail(), user.getBirthDate());
     }
 
     // Jwt Session: find user

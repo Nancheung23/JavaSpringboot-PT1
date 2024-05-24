@@ -1,5 +1,8 @@
 package com.foodrecipes.webapp.model;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,8 +46,8 @@ public class User implements Comparable<Integer> {
     @Column(name = "email", unique = true) // Marks the email as unique within the database.
     private String email; // User's email address, must be unique.
 
-    @Column(name = "age") // No specific constraints, defaults apply.
-    private int age; // User's age.
+    @Column(name = "birthdate") // No specific constraints, defaults apply.
+    private String birthDate; // User's birthdate.
 
     @Column(name = "salt") // store specific salt value for authorization
     private String salt;
@@ -67,14 +70,14 @@ public class User implements Comparable<Integer> {
      * Full constructor for creating a new User with all field values.
      */
     public User(final Long id, final String name, final String password, final String nickName,
-            final String avatarUrl, final String email, final int age) {
+            final String avatarUrl, final String email, final String birthDate) {
         this.id = id;
         this.name = name;
         this.password = password;
         this.nickName = nickName;
         this.avatarUrl = avatarUrl;
         this.email = email;
-        this.age = age;
+        this.birthDate = birthDate;
     }
 
     // Standard getter and setter methods for accessing and updating the field
@@ -87,6 +90,8 @@ public class User implements Comparable<Integer> {
 
     /**
      * Compares this user's age to another age.
+     * As user does not have an age field, it is calculated using LocalDate,
+     * Period and DateTimeFormatter classes.
      * Useful for sorting collections of users based on age.
      * 
      * @param o another user's age to compare to.
@@ -95,7 +100,7 @@ public class User implements Comparable<Integer> {
      */
     @Override
     public int compareTo(Integer o) {
-        return Integer.compare(age, o);
+        return Integer.compare(Period.between(LocalDate.parse(birthDate, DateTimeFormatter.ofPattern("dd.MM.yyyy")), LocalDate.now()).getYears(), o);
     }
 
     public Long getId() {
@@ -146,12 +151,12 @@ public class User implements Comparable<Integer> {
         this.email = email;
     }
 
-    public int getAge() {
-        return age;
+    public String getBirthDate() {
+        return birthDate;
     }
 
-    public void setAge(int age) {
-        this.age = age;
+    public void setBirthDate(String birthDate) {
+        this.birthDate = birthDate;
     }
 
     public String getSalt() {
@@ -209,7 +214,7 @@ public class User implements Comparable<Integer> {
         result = prime * result + ((nickName == null) ? 0 : nickName.hashCode());
         result = prime * result + ((avatarUrl == null) ? 0 : avatarUrl.hashCode());
         result = prime * result + ((email == null) ? 0 : email.hashCode());
-        result = prime * result + age;
+        result = prime * result + ((birthDate == null) ? 0 : birthDate.hashCode());
         return result;
     }
 
@@ -252,7 +257,10 @@ public class User implements Comparable<Integer> {
                 return false;
         } else if (!email.equals(other.email))
             return false;
-        if (age != other.age)
+        if (birthDate == null) {
+            if (other.birthDate != null)
+                return false;
+        } else if (!birthDate.equals(other.birthDate))
             return false;
         return true;
     }
@@ -260,7 +268,7 @@ public class User implements Comparable<Integer> {
     @Override
     public String toString() {
         return "User [id=" + id + ", name=" + name + ", password=" + password + ", nickName=" + nickName
-                + ", avatarUrl=" + avatarUrl + ", email=" + email + ", age=" + age + "]";
+                + ", avatarUrl=" + avatarUrl + ", email=" + email + ", birthDate=" + birthDate + "]";
     }
 
 }
