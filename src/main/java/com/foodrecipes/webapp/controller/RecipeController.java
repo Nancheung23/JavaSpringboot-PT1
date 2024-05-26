@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -22,10 +23,13 @@ import com.foodrecipes.webapp.dto.RecipeDTO;
 import com.foodrecipes.webapp.dto.UserDTO;
 import com.foodrecipes.webapp.model.Comment;
 import com.foodrecipes.webapp.model.Recipe;
+import com.foodrecipes.webapp.repository.CommentRepository;
 import com.foodrecipes.webapp.repository.RecipeRepository;
 import com.foodrecipes.webapp.service.ImageStorageService;
 import com.foodrecipes.webapp.service.RecipeConversionService;
 import com.foodrecipes.webapp.service.UserConversionService;
+
+import jakarta.transaction.Transactional;
 
 @RestController
 @RequestMapping("/api/recipes")
@@ -34,14 +38,16 @@ public class RecipeController {
     private final RecipeConversionService recipeConversionService;
     private final UserConversionService userConversionService;
     private final ImageStorageService imageStorageService;
+    private final CommentRepository commentRepository;
 
     @Autowired
     public RecipeController(RecipeRepository recipeRepository, RecipeConversionService recipeConversionService,
-            UserConversionService userConversionService, ImageStorageService imageStorageService) {
+            UserConversionService userConversionService, ImageStorageService imageStorageService, CommentRepository commentRepository) {
         this.recipeRepository = recipeRepository;
         this.recipeConversionService = recipeConversionService;
         this.userConversionService = userConversionService;
         this.imageStorageService = imageStorageService;
+        this.commentRepository = commentRepository;
     }
 
     @GetMapping("/")
@@ -82,25 +88,29 @@ public class RecipeController {
     }
 
     @DeleteMapping("/{id}")
+    @Transactional
     public ResponseEntity<RecipeDTO> deleteRecipe(@PathVariable Long id) {
         Recipe recipe = recipeRepository.findById(id).orElse(null);
         if (recipe != null) {
+            commentRepository.deleteByRecipeId(id);
             recipeRepository.delete(recipe);
             return ResponseEntity.ok(recipeConversionService.convertToDto(recipe));
         }
         return ResponseEntity.ofNullable(null);
-
     }
 
-    @PostMapping("/{id}/view")
+    @PutMapping("/{id}/view")
     public ResponseEntity<RecipeDTO> viewRecipe(@PathVariable Long id, @RequestBody UserDTO user) throws NoSuchAlgorithmException {
-        recipeConversionService.incrementRecipeViews(id, userConversionService.convertToEntity(user).getId());
-        return ResponseEntity.ok(
-                recipeConversionService.convertToDto(userConversionService.convertToEntity(user).getRecipes().stream()
-                        .filter(e -> e.getId() == id).findFirst().orElseThrow(NoSuchElementException::new)));
+        Long userId = userConversionService.convertToEntity(user).getId();
+        recipeConversionService.incrementRecipeViews(id, userId);
+        
+        Recipe recipe = recipeRepository.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("Recipe not found with id: " + id));
+        
+        return ResponseEntity.ok(recipeConversionService.convertToDto(recipe));
     }
 
-    @PostMapping("/{id}/image")
+    @PatchMapping("/{id}/image")
     public ResponseEntity<RecipeDTO> postImage(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
         Recipe recipe = recipeRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Recipe not found"));
         String fileUrl = imageStorageService.fileStore(file);

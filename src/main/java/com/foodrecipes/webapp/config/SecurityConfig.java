@@ -69,6 +69,7 @@ public class SecurityConfig {
                         // Permit all GET requests, others authenticate
                         .requestMatchers(HttpMethod.GET, "/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users/").permitAll()
                         .requestMatchers("/api/users/**").authenticated()
                         .requestMatchers("/api/recipes/**").authenticated()
                         .requestMatchers("/api/comments/**").authenticated()
