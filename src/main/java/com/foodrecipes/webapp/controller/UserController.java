@@ -2,6 +2,7 @@ package com.foodrecipes.webapp.controller;
 
 // Importing necessary classes from Spring framework and Java standard library
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.foodrecipes.webapp.dto.CommentDTO;
 import com.foodrecipes.webapp.dto.RecipeDTO;
@@ -28,6 +31,9 @@ import com.foodrecipes.webapp.service.CommentConversionService;
 import com.foodrecipes.webapp.service.ImageStorageService;
 import com.foodrecipes.webapp.service.RecipeConversionService;
 import com.foodrecipes.webapp.service.UserConversionService;
+
+import jakarta.transaction.Transactional;
+
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
@@ -53,6 +59,9 @@ public class UserController {
     private final CommentRepository commentRepository;
     private final CommentConversionService commentConversionService;
     private final ImageStorageService imageStorageService;
+
+        // logger for checking authentication
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     /**
      * Constructor for UserController.
@@ -181,11 +190,14 @@ public class UserController {
     public ResponseEntity<UserDTO> putUser(@PathVariable Long id, @RequestBody UserDTO userDto)
             throws NoSuchAlgorithmException {
         User user = conversionService.convertToEntity(userDto);
+        logger.info("user: {}", user.getName());
         if (!userRepository.existsById(id)) {
+            logger.info("new user: {}", id);
             return createUser(userDto);
         } else {
             user.setId(id);
             userRepository.save(user);
+            logger.info("user changed: {}", user.getName());
             return ResponseEntity.ok(conversionService.convertToDTO(user));
         }
     }
@@ -197,9 +209,14 @@ public class UserController {
      * @param id the ID of the user to delete.
      */
     @DeleteMapping("/{id}")
+    @Transactional
     ResponseEntity<UserDTO> deleteUser(@PathVariable Long id) throws NoSuchAlgorithmException {
         User user = userRepository.findById(id).orElse(null);
+        logger.info("user: {}", user.getName());
+        commentRepository.updateUserIdToNull(id);
+        recipeRepository.updateUserIdToNull(id);
         userRepository.deleteById(id);
+        logger.info("deleted id: {}", id);
         return ResponseEntity.ok(conversionService.convertToDTO(user));
     }
 
@@ -210,10 +227,11 @@ public class UserController {
      * @return
      * @throws NoSuchAlgorithmException
      */
-    @PostMapping("/{id}/avatar")
+    @PatchMapping("/{id}/avatar")
     ResponseEntity<UserDTO> uploadAvatar(@PathVariable Long id, @RequestParam("file") MultipartFile file) throws NoSuchAlgorithmException {
         User user = userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User not found"));
         String fileUrl = imageStorageService.fileStore(file);
+        logger.info("file url: {}", fileUrl);
         user.setAvatarUrl(fileUrl);
         user.setId(id);
         userRepository.save(user);

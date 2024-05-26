@@ -15,7 +15,7 @@ import jakarta.persistence.*;
  * mapped to a table in the database.
  */
 @Entity
-@Table(name = "recipe")
+@Table(name = "recipes")
 public class Recipe implements Comparable<String> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,7 +37,7 @@ public class Recipe implements Comparable<String> {
     private String picture;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = true)
     @JsonBackReference
     private User user;
 
