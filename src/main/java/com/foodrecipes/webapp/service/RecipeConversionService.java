@@ -65,11 +65,10 @@ public class RecipeConversionService {
      * @param userId
      */
     public void incrementRecipeViews(Long recipeId, Long userId) {
-        Recipe recipe = recipeRepository.findById(recipeId).orElseThrow(NoSuchElementException::new);
-        User user = userRepository.findById(userId).orElseThrow(NoSuchElementException::new);
-        if ((recipe != null) && (user != null) && (recipe.getUser().getId() != user.getId())) {
-            recipe.setViews(recipe.getViews() + 1);
-            recipeRepository.save(recipe);
-        }
+        Recipe recipe = recipeRepository.findById(recipeId)
+            .orElseThrow(() -> new NoSuchElementException("Recipe not found with id: " + recipeId));
+
+        recipe.setViews(recipe.getViews() + 1);
+        recipeRepository.save(recipe);
     }
 }

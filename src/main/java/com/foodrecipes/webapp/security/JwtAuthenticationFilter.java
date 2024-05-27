@@ -65,9 +65,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     // Set auth token into SecurityContextHolder
                     SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
                 }
-            } catch (Exception e) {
+            } catch (NoSuchElementException e) {
                 // if User doesn't exist
-                throw new NoSuchElementException("No Such User");
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User not found");
+                return;
+            } catch (Exception e) {
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error");
+                return;
             }
         }
         // continue filter

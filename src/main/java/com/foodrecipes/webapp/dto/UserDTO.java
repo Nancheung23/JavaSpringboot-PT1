@@ -135,7 +135,7 @@ public class UserDTO {
      * https:// protocols
      */
     public void setAvatarUrl(String avatarUrl) {
-        if (avatarUrl.startsWith("http://") || avatarUrl.startsWith("https://")) {
+        if (avatarUrl.startsWith("http://") || avatarUrl.startsWith("https://") || avatarUrl.startsWith("C:")) {
             this.avatarUrl = avatarUrl;
         } else {
             throw new IllegalArgumentException("Invalid avatar source.");
