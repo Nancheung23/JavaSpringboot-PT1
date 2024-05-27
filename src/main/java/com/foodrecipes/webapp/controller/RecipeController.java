@@ -25,9 +25,11 @@ import com.foodrecipes.webapp.model.Comment;
 import com.foodrecipes.webapp.model.Recipe;
 import com.foodrecipes.webapp.repository.CommentRepository;
 import com.foodrecipes.webapp.repository.RecipeRepository;
+import com.foodrecipes.webapp.repository.UserLogRepository;
 import com.foodrecipes.webapp.service.ImageStorageService;
 import com.foodrecipes.webapp.service.RecipeConversionService;
 import com.foodrecipes.webapp.service.UserConversionService;
+import com.foodrecipes.webapp.service.UserLogConversionService;
 
 import jakarta.transaction.Transactional;
 
@@ -39,15 +41,21 @@ public class RecipeController {
     private final UserConversionService userConversionService;
     private final ImageStorageService imageStorageService;
     private final CommentRepository commentRepository;
+    private final UserLogRepository userLogRepository;
+    private final UserLogConversionService userLogConversionService;
 
     @Autowired
     public RecipeController(RecipeRepository recipeRepository, RecipeConversionService recipeConversionService,
-            UserConversionService userConversionService, ImageStorageService imageStorageService, CommentRepository commentRepository) {
+            UserConversionService userConversionService, ImageStorageService imageStorageService,
+            CommentRepository commentRepository, UserLogRepository userLogRepository,
+            UserLogConversionService userLogConversionService) {
         this.recipeRepository = recipeRepository;
         this.recipeConversionService = recipeConversionService;
         this.userConversionService = userConversionService;
         this.imageStorageService = imageStorageService;
         this.commentRepository = commentRepository;
+        this.userLogRepository = userLogRepository;
+        this.userLogConversionService = userLogConversionService;
     }
 
     @GetMapping("/")
@@ -72,6 +80,10 @@ public class RecipeController {
     public ResponseEntity<RecipeDTO> createRecipe(@RequestBody RecipeDTO recipeDto) {
         Recipe recipe = recipeConversionService.convertToEntity(recipeDto);
         recipeRepository.save(recipe);
+        // record log
+        Long userId = recipe.getUser().getId();
+        String detail = String.format("Create recipe -- Create recipe %d by user %d", recipe.getId(), userId);
+        userLogRepository.save(userLogConversionService.recordLog(detail, userId));
         return ResponseEntity.ok(recipeDto);
     }
 
@@ -83,6 +95,10 @@ public class RecipeController {
         } else {
             recipe.setId(id);
             recipeRepository.save(recipe);
+            // record log
+            Long userId = recipe.getUser().getId();
+            String detail = String.format("Modify recipe -- Modify recipe %d by user %d", recipe.getId(), userId);
+            userLogRepository.save(userLogConversionService.recordLog(detail, userId));
             return ResponseEntity.ok(recipeConversionService.convertToDto(recipe));
         }
     }
@@ -94,19 +110,24 @@ public class RecipeController {
         if (recipe != null) {
             commentRepository.deleteByRecipeId(id);
             recipeRepository.delete(recipe);
+            // record log
+            Long userId = recipe.getUser().getId();
+            String detail = String.format("Delete recipe -- Delete recipe %d by user %d", recipe.getId(), userId);
+            userLogRepository.save(userLogConversionService.recordLog(detail, userId));
             return ResponseEntity.ok(recipeConversionService.convertToDto(recipe));
         }
         return ResponseEntity.ofNullable(null);
     }
 
     @PutMapping("/{id}/view")
-    public ResponseEntity<RecipeDTO> viewRecipe(@PathVariable Long id, @RequestBody UserDTO user) throws NoSuchAlgorithmException {
+    public ResponseEntity<RecipeDTO> viewRecipe(@PathVariable Long id, @RequestBody UserDTO user)
+            throws NoSuchAlgorithmException {
         Long userId = userConversionService.convertToEntity(user).getId();
         recipeConversionService.incrementRecipeViews(id, userId);
-        
+
         Recipe recipe = recipeRepository.findById(id)
-            .orElseThrow(() -> new NoSuchElementException("Recipe not found with id: " + id));
-        
+                .orElseThrow(() -> new NoSuchElementException("Recipe not found with id: " + id));
+
         return ResponseEntity.ok(recipeConversionService.convertToDto(recipe));
     }
 
