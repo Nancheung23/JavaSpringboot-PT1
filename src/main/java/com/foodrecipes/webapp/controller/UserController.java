@@ -20,17 +20,18 @@ import org.slf4j.LoggerFactory;
 import com.foodrecipes.webapp.dto.CommentDTO;
 import com.foodrecipes.webapp.dto.RecipeDTO;
 import com.foodrecipes.webapp.dto.UserDTO;
-import com.foodrecipes.webapp.exception.StorageException;
 import com.foodrecipes.webapp.model.Comment;
 import com.foodrecipes.webapp.model.Recipe;
 import com.foodrecipes.webapp.model.User;
 import com.foodrecipes.webapp.repository.CommentRepository;
 import com.foodrecipes.webapp.repository.RecipeRepository;
+import com.foodrecipes.webapp.repository.UserLogRepository;
 import com.foodrecipes.webapp.repository.UserRepository;
 import com.foodrecipes.webapp.service.CommentConversionService;
 import com.foodrecipes.webapp.service.ImageStorageService;
 import com.foodrecipes.webapp.service.RecipeConversionService;
 import com.foodrecipes.webapp.service.UserConversionService;
+import com.foodrecipes.webapp.service.UserLogConversionService;
 
 import jakarta.transaction.Transactional;
 
@@ -59,6 +60,8 @@ public class UserController {
     private final CommentRepository commentRepository;
     private final CommentConversionService commentConversionService;
     private final ImageStorageService imageStorageService;
+    private final UserLogRepository userLogRepository;
+    private final UserLogConversionService userLogConversionService;
 
     // logger for checking authentication
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
@@ -71,9 +74,10 @@ public class UserController {
      */
     @Autowired
     public UserController(UserRepository userRepository, UserConversionService conversionService,
-    RecipeRepository recipeRepository, RecipeConversionService recipeConversionService,
-    CommentRepository commentRepository, CommentConversionService commentConversionService,
-    ImageStorageService imageStorageService) {
+            RecipeRepository recipeRepository, RecipeConversionService recipeConversionService,
+            CommentRepository commentRepository, CommentConversionService commentConversionService,
+            ImageStorageService imageStorageService, UserLogRepository userLogRepository,
+            UserLogConversionService userLogConversionService) {
         this.userRepository = userRepository;
         this.conversionService = conversionService;
         this.recipeRepository = recipeRepository;
@@ -81,6 +85,8 @@ public class UserController {
         this.commentRepository = commentRepository;
         this.commentConversionService = commentConversionService;
         this.imageStorageService = imageStorageService;
+        this.userLogConversionService = userLogConversionService;
+        this.userLogRepository = userLogRepository;
     }
 
     /**
@@ -105,19 +111,39 @@ public class UserController {
         return userRepository.findById(id);
     }
 
+    /**
+     * Note: record log
+     * 
+     * @param id
+     * @return
+     */
     @GetMapping("/{id}/recipes")
     public Set<Recipe> getRecipesOfUser(@PathVariable Long id) {
         User user = userRepository.findById(id).orElseThrow(NoSuchElementException::new);
         if (user != null) {
+            // record log
+            String detail = String.format("Search recipes -- Found recipes under user %d: %d recipes in total.", id,
+                    user.getRecipes().size());
+            userLogRepository.save(userLogConversionService.recordLog(detail, id));
             return user.getRecipes();
         }
         return new HashSet<>();
     }
 
+    /**
+     * Note: record log
+     * 
+     * @param id
+     * @return
+     */
     @GetMapping("/{id}/comments")
     public Set<Comment> getCommentsOfUser(@PathVariable Long id) {
         User user = userRepository.findById(id).orElseThrow(NoSuchElementException::new);
         if (user != null) {
+            // record log
+            String detail = String.format("Search comments -- Found recipes under user %d: %d comments in total.", id,
+                    user.getComments().size());
+            userLogRepository.save(userLogConversionService.recordLog(detail, id));
             return user.getComments();
         }
         return new HashSet<>();
@@ -138,12 +164,24 @@ public class UserController {
         user = userRepository.save(user);
         // convert back UserDTO
         UserDTO responseDto = conversionService.convertToDTO(user);
+        // record log
+        String detail = String.format("Create user -- Create user %d.", user.getId());
+        userLogRepository.save(userLogConversionService.recordLog(detail, user.getId()));
         // return Dto in 200 status
         return ResponseEntity.ok(responseDto);
     }
 
+    /**
+     * Post comment under recipe for user, and record log
+     * 
+     * @param userId
+     * @param recipeId
+     * @param commentDto
+     * @return
+     */
     @PostMapping("/{userId}/comments/{recipeId}/post")
-    public ResponseEntity<CommentDTO> createCommentFromUserForRecipe(@PathVariable Long userId, @PathVariable Long recipeId, @RequestBody CommentDTO commentDto) {
+    public ResponseEntity<CommentDTO> createCommentFromUserForRecipe(@PathVariable Long userId,
+            @PathVariable Long recipeId, @RequestBody CommentDTO commentDto) {
         User user = userRepository.findById(userId).orElse(null);
         Recipe recipe = recipeRepository.findById(recipeId).orElse(null);
         if (user != null && recipe != null) {
@@ -153,26 +191,51 @@ public class UserController {
             commentRepository.save(comment);
             user.setComment(comment);
             recipe.setComment(comment);
+            // record log
+            String detail = String.format(
+                    "Create comment -- Create comment under recipe %d for user %d. Comment id: %d", recipeId, userId,
+                    comment.getId());
+            userLogRepository.save(userLogConversionService.recordLog(detail, userId));
             return ResponseEntity.ok(commentConversionService.convertToDto(comment));
         } else {
+            // error log
+            String detail = String.format("Create comment -- Can't find user id: %d", userId);
+            userLogRepository.save(userLogConversionService.recordLog(detail, userId));
             return ResponseEntity.badRequest().build();
         }
     }
 
+    /**
+     * Rating one recipe by user, record log
+     * @param userId
+     * @param recipeId
+     * @param rating
+     * @return
+     */
     @PostMapping("/{userId}/comments/{recipeId}/rating")
-    public ResponseEntity<RecipeDTO> createRatingFromUserForRecipe(@PathVariable Long userId, @PathVariable Long recipeId, @RequestBody double rating) {
+    public ResponseEntity<RecipeDTO> createRatingFromUserForRecipe(@PathVariable Long userId,
+            @PathVariable Long recipeId, @RequestBody double rating) {
         User user = userRepository.findById(userId).orElse(null);
         Recipe recipe = recipeRepository.findById(recipeId).orElse(null);
-        if (user!= null && recipe!= null) {
+        if (user != null && recipe != null) {
             if (!user.getRecipes().contains(recipe)) {
                 recipe.setRating(rating);
                 recipe.setId(recipeId);
                 recipeRepository.save(recipe);
+                // record log
+                String detail = String.format(
+                        "Create rating -- Create rating for recipe %d by user %d.", recipeId,
+                        userId);
+                userLogRepository.save(userLogConversionService.recordLog(detail, userId));
                 return ResponseEntity.ok(recipeConversionService.convertToDto(recipe));
             } else {
+                String detail = String.format("Create rating -- Recipe %d doesn't exist", recipeId);
+                userLogRepository.save(userLogConversionService.recordLog(detail, userId));
                 return ResponseEntity.badRequest().build();
             }
         } else {
+            String detail = String.format("Create rating -- User %d or Recipe %d is null", userId, recipeId);
+            userLogRepository.save(userLogConversionService.recordLog(detail, userId));
             return ResponseEntity.badRequest().build();
         }
     }
@@ -198,6 +261,8 @@ public class UserController {
             user.setId(id);
             userRepository.save(user);
             logger.info("user changed: {}", user.getName());
+            String detail = String.format("Modify user -- User %d modified", user.getId());
+            userLogRepository.save(userLogConversionService.recordLog(detail, user.getId()));
             return ResponseEntity.ok(conversionService.convertToDTO(user));
         }
     }
@@ -217,24 +282,33 @@ public class UserController {
         recipeRepository.updateUserIdToNull(id);
         userRepository.deleteById(id);
         logger.info("deleted id: {}", id);
+        // record log
+        String detail = String.format("Delete user -- User %d deleted", id);
+        userLogRepository.save(userLogConversionService.recordLog(detail, id));
         return ResponseEntity.ok(conversionService.convertToDTO(user));
     }
 
     /**
-     * Every time when user upload a image, store into /upload, then save url info of user
+     * Every time when user upload a image, store into /upload, then save url info
+     * of user
+     * 
      * @param id
      * @param file
      * @return
      * @throws NoSuchAlgorithmException
      */
     @PatchMapping("/{id}/avatar")
-    ResponseEntity<UserDTO> uploadAvatar(@PathVariable Long id, @RequestParam("file") MultipartFile file) throws NoSuchAlgorithmException {
+    ResponseEntity<UserDTO> uploadAvatar(@PathVariable Long id, @RequestParam("file") MultipartFile file)
+            throws NoSuchAlgorithmException {
         User user = userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User not found"));
         String fileUrl = imageStorageService.fileStore(file);
         logger.info("file url: {}", fileUrl);
         user.setAvatarUrl(fileUrl);
         user.setId(id);
         userRepository.save(user);
+        // record log
+        String detail = String.format("Upload avatar -- User %d uploaded avatar: %s", user.getId(), fileUrl);
+        userLogRepository.save(userLogConversionService.recordLog(detail, user.getId()));
         return ResponseEntity.ok(conversionService.convertToDTO(user));
-    } 
+    }
 }
