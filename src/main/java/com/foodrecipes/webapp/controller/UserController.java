@@ -60,7 +60,7 @@ public class UserController {
     private final CommentConversionService commentConversionService;
     private final ImageStorageService imageStorageService;
 
-        // logger for checking authentication
+    // logger for checking authentication
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     /**

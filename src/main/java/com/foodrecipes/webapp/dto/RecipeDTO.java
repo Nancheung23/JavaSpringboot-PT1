@@ -13,6 +13,7 @@ public class RecipeDTO {
     }
 
     /**
+     * Constructor for recipe DTO
      * 
      * @param title
      * @param content
@@ -30,42 +31,78 @@ public class RecipeDTO {
         this.userId = userId;
     }
 
-    // Standard getter and setter methods for accessing and updating the field
-    // values.
+    /**
+     * Standart getter for recipe title
+     * @return title
+     */
     public String getTitle() {
         return title;
     }
 
+    /**
+     * Setter: recipe title
+     * The title length must be between 4 and 40 characters.
+     * 
+     * @param title
+     * @throws IllegalArgumentException if the title length does not match the length limits
+     */
     public void setTitle(String title) {
-        if (title.length() <= 3) {
-            throw new IllegalArgumentException("Invalid title");
+        if (title.length() < 4 || title.length() > 40) {
+            throw new IllegalArgumentException("Invalid title, 4 to 40 symbols allowed.");
         }
         this.title = title;
     }
 
+    /**
+     * Standart getter for recipe content
+     * @return content
+     */
     public String getContent() {
         return content;
     }
 
+    /**
+     * Setter: recipe content
+     * 
+     * @param content
+     * @throws IllegalArgumentException if the content is empty
+     */
     public void setContent(String content) {
         if (content.equals("") || content.length() < 1) {
-            throw new IllegalArgumentException("Invalid content");
+            throw new IllegalArgumentException("Empty content.");
         }
         this.content = content;
     }
 
+    /**
+     * Standart getter for id of the recipe author
+     * @return user id
+     */
     public Long getUserId() {
         return userId;
     }
 
+    /**
+     * Setter: user id
+     * @param userId
+     */
     public void setUserId(Long userId) {
         this.userId = userId;
     }
 
+    /**
+     * Standart getter for recipe rating
+     * @return recipe rating
+     */
     public double getRating() {
         return rating;
     }
 
+    /**
+     * Setter: recipe rating
+     * @param rating
+     * @throws IllegalArgumentException if the rating is negative 
+     */
     public void setRating(double rating) {
         if (rating < 0) {
             throw new IllegalArgumentException("Invalid rating");
@@ -74,10 +111,20 @@ public class RecipeDTO {
         this.rating = rating;
     }
 
+    /**
+     * Standart getter for recipe number of views
+     * @return number of views
+     */
     public int getViews() {
         return views;
     }
 
+    /**
+     * Setter: views number
+     * 
+     * @param views
+     * @throws IllegalArgumentException if the views number is negative
+     */
     public void setViews(int views) {
         if (views < 0) {
             throw new IllegalArgumentException("Invalid views");
@@ -85,6 +132,28 @@ public class RecipeDTO {
         this.views = views;
     }
 
+    /**
+     * Standart getter for picture url/path
+     * @return picture url/path
+     */
+    public String getPicture() {
+        return picture;
+    }
+
+    /**
+     * Setter: picture url/path
+     * 
+     * @param picture
+     */
+    public void setPicture(String picture) {
+        this.picture = picture;
+    }
+
+    /**
+     * Overriden hashCode method for enhanced debugging
+     * 
+     * @return object hash code
+     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -99,6 +168,11 @@ public class RecipeDTO {
         return result;
     }
 
+    /**
+     * Overriden equals method for enhanced debugging
+     * 
+     * @return comparison result
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -130,14 +204,11 @@ public class RecipeDTO {
         return true;
     }
 
-    public String getPicture() {
-        return picture;
-    }
-
-    public void setPicture(String picture) {
-        this.picture = picture;
-    }
-
+    /**
+     * Overriden toString method for enhanced debugging
+     * 
+     * @return string representation of the object
+     */
     @Override
     public String toString() {
         return "RecipeDTO [title=" + title + ", content=" + content + ", rating=" + rating + ", views=" + views

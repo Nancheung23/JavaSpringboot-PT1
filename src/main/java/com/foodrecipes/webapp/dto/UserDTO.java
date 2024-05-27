@@ -19,9 +19,7 @@ public class UserDTO {
     private String password; // User's password, important for authentication purposes.
     private String avatarUrl; // URL of the user's avatar image, important for user interface display.
     private String email; // User's email address, can be used for contact or identification purposes.
-    private int age; // User's age, could be relevant for context or personalized content.
     private String salt;
-    // private int age; // User's age, could be relevant for context or personalized content.
     private String birthDate; // User's birthdate, can be used for age restrictions and personalized content.
 
     private static final Set<Character> PROHIBITED_SYMBOLS = Set.of('<', '>', '/', '\\', '\'', '"', ';', ':', '&', '|', '!', '#', '$', '%', '^', '*', '(', ')', '+', '=', '?', '{', '}', '[', ']', ',', '.', '@', ' ', '\t', '\n');
@@ -68,8 +66,7 @@ public class UserDTO {
      * 
      * @param name
      * @throws IllegalArgumentException if the username is empty, null, shorter
-     * than 3 characters or longer than 50 characters
-     * or has any of restricted symbols
+     * than 3 characters or longer than 50 characters or has any of restricted symbols
      */
     public void setName(String name) {
         if (name.isEmpty() || name == null) {
@@ -105,9 +102,9 @@ public class UserDTO {
      */
     public void setNickName(String nickName) {
         if (nickName.isEmpty() || nickName == null) {
-            throw new IllegalArgumentException("Empty username.");
+            throw new IllegalArgumentException("Empty nickname.");
         } else if (nickName.length() < 3) {
-            throw new IllegalArgumentException("Invalid username, must contain 3 characters min.");
+            throw new IllegalArgumentException("Invalid nickname, must contain 3 characters min.");
         }
         for (char c : nickName.toCharArray()) {
             if (PROHIBITED_SYMBOLS.contains(c)) throw new IllegalArgumentException(
