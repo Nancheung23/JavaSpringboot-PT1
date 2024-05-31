@@ -1,14 +1,26 @@
 package com.foodrecipes.webapp.service;
 
 import com.foodrecipes.webapp.model.User;
+import com.foodrecipes.webapp.repository.CustomPasswordEncoder;
+import com.foodrecipes.webapp.repository.UserRepository;
+import com.foodrecipes.webapp.security.HashingUtility;
 import com.foodrecipes.webapp.dto.UserDTO;
 
 import java.security.NoSuchAlgorithmException;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserConversionService {
+public class UserConversionService implements UserDetailsService {
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private CustomPasswordEncoder passwordEncoder;
 
     /**
      * Convert DTO object to User object,
@@ -16,15 +28,27 @@ public class UserConversionService {
      * 
      * @param dto
      * @return user
+     * @throws NoSuchAlgorithmException
      */
-    public User convertToEntity(UserDTO dto) {
+    public User convertToEntity(UserDTO dto) throws NoSuchAlgorithmException {
         User user = new User();
         user.setName(dto.getName());
         user.setNickName(dto.getNickName());
-        user.setPassword(dto.getPassword());
+        // translate password to hashed password
+        if (dto.getSalt() == null) {
+            String salt = HashingUtility.generateSalt();
+            passwordEncoder.setSalt(salt);
+            String hashedPassword = passwordEncoder.encode(dto.getPassword());
+            user.setPassword(hashedPassword);
+            user.setSalt(salt);
+        } else {
+            // if already exist salt, convert LAZY
+            user.setPassword(dto.getPassword());
+            user.setSalt(dto.getSalt());
+        }
         user.setEmail(dto.getEmail());
         user.setAvatarUrl(dto.getAvatarUrl());
-        user.setAge(dto.getAge());
+        user.setBirthDate(dto.getBirthDate());
         return user;
     }
 
@@ -38,6 +62,22 @@ public class UserConversionService {
      */
     public UserDTO convertToDTO(User user) throws NoSuchAlgorithmException {
         return new UserDTO(user.getName(), user.getNickName(), user.getPassword(), user.getAvatarUrl(),
-                user.getEmail(), user.getAge());
+                user.getEmail(), user.getBirthDate());
+    }
+
+    // Jwt Session: find user
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByName(username).orElse(null);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found with username: " + username);
+        }
+        // parse username and password to UserDetails' username and password
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(user.getName())
+                // get password which encrypted by SHA-256 and salt
+                .password(user.getPassword())
+                .authorities("USER")
+                .build();
     }
 }
