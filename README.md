@@ -5,7 +5,7 @@ including fetching data, adding entities, and handling errors with comprehensive
 management.
 
 ## Set up database
-Set up datbase according to [this tutorial]([https://www.themealdb.com/api.php](https://tuni.sharepoint.com/:w:/r/sites/TG-TTHarjoittelut2024-x-team-16/_layouts/15/Doc2.aspx?action=edit&sourcedoc=%7B4c52dd47-7f40-4e93-b0e8-43018aaac08b%7D&wdOrigin=TEAMS-MAGLEV.teamsSdk_ns.rwc&wdExp=TEAMS-TREATMENT&wdhostclicktime=1719597164515&web=1)).
+Set up datbase according to [this tutorial](https://tuni.sharepoint.com/:w:/r/sites/TG-TTHarjoittelut2024-x-team-16/Shared%20Documents/x-team-16/database%20setup.docx?d=w4c52dd477f404e93b0e843018aaac08b&csf=1&web=1&e=aEizci).
 
 ## Download repository
 Copy repository to your local machine.
